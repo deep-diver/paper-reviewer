@@ -1,0 +1,15 @@
+[extract_coordinates]
+prompt = """Extract the coordinates (x_min, y_min, x_max, y_max) of all figures and charts with caption in the given image. 
+
+This shouldn't be best effort, rather strict and thorough.
+Ensure that the coordinates should cover the entire region including caption. 
+IGNORE math formula, text-only region, and tables. <- These shouldn't be included.
+
+The coordinates should be represented as floating point numbers between 0 and 1, relative to the image size. 
+If no figures are found, return an empty array."""
+
+[describe_figure]
+prompt = "based on the paper, describe the given image in detail in two paragraphs."
+
+[double_check_figure]
+prompt = "does the image contain figure?"

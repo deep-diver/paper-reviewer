@@ -1,4 +1,5 @@
 import os
+import toml
 import json
 import requests
 import time
@@ -9,6 +10,9 @@ import google.generativeai as genai
 from google.ai.generativelanguage_v1beta.types import content
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+
+prompt_tmpl_path='configs/prompts.toml'
+prompts = toml.load(prompt_tmpl_path)
 
 def download_pdf(root_path, arxiv_id):
     pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
@@ -68,26 +72,26 @@ def ask_gemini_for_coordinates(image_path):
                 "x_min": content.Schema(
                         type = content.Type.ARRAY,
                         items = content.Schema(
-                        type = content.Type.NUMBER,
-                    ),
+                            type = content.Type.NUMBER,
+                        ),
                 ),
                 "y_min": content.Schema(
                         type = content.Type.ARRAY,
                         items = content.Schema(
-                        type = content.Type.NUMBER,
-                    ),
+                            type = content.Type.NUMBER,
+                        ),
                 ),
                 "x_max": content.Schema(
                         type = content.Type.ARRAY,
                         items = content.Schema(
-                        type = content.Type.NUMBER,
-                    ),
+                            type = content.Type.NUMBER,
+                        ),
                 ),
                 "y_max": content.Schema(
                         type = content.Type.ARRAY,
                         items = content.Schema(
-                        type = content.Type.NUMBER,
-                    ),
+                            type = content.Type.NUMBER,
+                        ),
                 ),
             },
         ),
@@ -103,31 +107,43 @@ def ask_gemini_for_coordinates(image_path):
         upload_to_gemini(image_path, mime_type="image/png"),
     ]
 
+    wait_for_files_active(files)
+
     chat_session = model.start_chat(
         history=[
             {
                 "role": "user",
                 "parts": [
-                    files[0],
-                    "extract the coordinates of figure 2 in a given image.\n(x_min, y_min, x_max, y_max)\n\nthe coordinate should cover the entire figure.\nthe coordinate should be represented in integer from 0 to 1 (floating point number)",
+                    files[0]
                 ],
             },
         ]
     )
 
-    prompt = """extract the coordinates(x_min, y_min, x_max, y_max) of figures in a given image.
-
-the coordinate should cover the entire figure with margin.
-the coordinate should be represented in integer from 0 to 1
-
-only figures and tables are allowed to be included. no math formula.
-if there is no figure, return empty array.
-"""
+    prompt = prompts["extract_coordinates"]["prompt"]
 
     response = chat_session.send_message(prompt)
     return response.text
 
-def ask_gemini_for_description(pdf_path, figure_path):
+def ask_upstage_document_parse(image_path):
+    coordinates = []
+    UPSTAGE_API_KEY = os.environ["UPSTAGE_API_KEY"]
+    
+    url = "https://api.upstage.ai/v1/document-ai/document-parse"
+    headers = {"Authorization": f"Bearer {UPSTAGE_API_KEY}"}
+    files = {"document": open(image_path, "rb")}
+    data = {"output_formats": "['markdown']"} # in case you need both text and html
+    
+    response = requests.post(url, headers=headers, files=files, data=data)
+    response = response.json()
+
+    for element in response["elements"]:
+        if element["category"] == "figure" or element["category"] == "chart":
+            coordinates.append(element["coordinates"])
+
+    return coordinates
+
+def ask_gemini_for_description(pdf_file_in_gemini, figure_path):
     generation_config = {
         "temperature": 1,
         "top_p": 0.95,
@@ -141,11 +157,51 @@ def ask_gemini_for_description(pdf_path, figure_path):
             generation_config=generation_config,
     )
 
+    figure_in_gemini = upload_to_gemini(figure_path, mime_type="image/png")
+    wait_for_files_active([figure_in_gemini])
+
+    chat_session = model.start_chat(
+        history=[
+            {
+                "role": "user",
+                "parts": [
+                    pdf_file_in_gemini,
+                    figure_in_gemini,
+                ],
+            }            
+        ]
+    )
+
+    prompt = prompts["describe_figure"]["prompt"]
+    response = chat_session.send_message(prompt)
+    return response.text
+
+def ask_gemini_for_double_check(figure_path):
+    generation_config = {
+        "temperature": 1,
+        "top_p": 0.95,
+        "top_k": 40,
+        "max_output_tokens": 8192,
+        "response_schema": content.Schema(
+            type = content.Type.OBJECT,
+            required = ["response"],
+            properties = {
+                "response": content.Schema(
+                    type = content.Type.BOOLEAN,
+                ),
+            },
+        ),
+        "response_mime_type": "application/json",
+    }
+
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash-8b",
+        generation_config=generation_config,
+    )
+
     files = [
-        upload_to_gemini(pdf_path, mime_type="application/pdf"),
         upload_to_gemini(figure_path, mime_type="image/png"),
     ]
-
     wait_for_files_active(files)
 
     chat_session = model.start_chat(
@@ -154,13 +210,12 @@ def ask_gemini_for_description(pdf_path, figure_path):
                 "role": "user",
                 "parts": [
                     files[0],
-                    files[1],
                 ],
-            }            
+            },
         ]
     )
 
-    prompt = "based on the paper, describe the given image in detail in two paragraphs."
+    prompt = prompts["double_check_figure"]["prompt"]
     response = chat_session.send_message(prompt)
     return response.text
 
@@ -191,6 +246,42 @@ def crop_figures(idx, image_path, root_path):
 
     return cropped_img_paths
 
-def associate_description(pdf_path, figure_path):
-    desc = ask_gemini_for_description(pdf_path, figure_path)
+def crop_figures_upstage(idx, image_path, root_path):
+    cropped_img_paths = []
+    image = Image.open(image_path)  # Replace "image.jpg" with your image file
+    width, height = image.size
+
+    # call Upstage's Document Parse to obtain left, top, right, bottom coordinates
+    coordinates = ask_upstage_document_parse(image_path)
+
+    for i, coordinate in enumerate(coordinates):
+        x_coords = [coord['x'] for coord in coordinate]
+        y_coords = [coord['y'] for coord in coordinate]
+
+        # Calculate top-left and bottom-right
+        top_left = {'x': min(x_coords), 'y': min(y_coords)}
+        bottom_right = {'x': max(x_coords), 'y': max(y_coords)}
+
+        left = int(top_left['x'] * width)
+        top = int(top_left['y'] * height)
+        right = int(bottom_right['x'] * width)
+        bottom = int(bottom_right['y'] * height)
+
+        try:
+            cropped_img = image.crop((left, top, right, bottom))
+            cropped_img_path = f"{root_path}/figure_{idx}_{i}.png"
+            cropped_img.save(cropped_img_path)
+            cropped_img_paths.append(cropped_img_path)
+        except:
+            continue        
+
+    return cropped_img_paths
+
+def associate_description(pdf_file_in_gemini, figure_path):
+    desc = ask_gemini_for_description(pdf_file_in_gemini, figure_path)
     return desc
+
+def double_check_figure(figure_path):
+    include_figure = ask_gemini_for_double_check(figure_path)
+    include_figure = json.loads(include_figure)["response"]
+    return include_figure
