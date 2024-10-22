@@ -1,5 +1,10 @@
 # Paper Reviewer
 
+## Models
+- Gemini 1.5 Flash 002: Image cropping, image description, section details, references
+- Gemini 1.5 Flash 8B: double-checking the cropped images
+- Upstage's Document Parse: Image cropping
+
 ## Instructions
 ### Setup dependencies
 
