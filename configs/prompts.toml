@@ -9,7 +9,37 @@ The coordinates should be represented as floating point numbers between 0 and 1,
 If no figures are found, return an empty array."""
 
 [describe_figure]
-prompt = "based on the paper, describe the given image in detail in two paragraphs."
+prompt = "based on the paper, describe the given image in detail in two paragraphs. also, specify the section title of the paper that the figure belongs to."
 
 [double_check_figure]
 prompt = "does the image contain figure?"
+
+[extract_sections]
+prompt = """extract the following information from the given paper.
+- title of each section
+- start and end page index that each section belongs to.
+
+ignore the following sections
+- abstract, subsections, conclusion, appendix, references
+"""
+
+[extract_references]
+prompt = """among the citations, find the top 20 most important papers with the following info.
+- section number that reference belongs to.
+- references from each section with first author's name and title of the referenced paper.
+- reason why the reference is picked as the most important in 1 paragraph
+
+the target sections are:
+$target_sections
+"""
+
+[extract_section_details]
+prompt = """for the section $section_info, analyze and extract the following information. Think deep and careful, and show me some valuable insights.
+
+- summary in a single paragraph.
+- keypoints that readers should pay attention to. if possible, include some numbers for highlighting.
+- details expanding the summary in markdown. This should be written in more than 3 paragraphs.
+- two pros and two cons about the contents.
+
+It is important not to refer the contents from other sections too much. The purpose is to understand the target section solely and deeply as much as possible.
+"""
