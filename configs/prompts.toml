@@ -9,10 +9,21 @@ The coordinates should be represented as floating point numbers between 0 and 1,
 If no figures are found, return an empty array."""
 
 [describe_figure]
-prompt = "based on the paper, describe the given image in detail in two paragraphs. also, specify the section title of the paper that the figure belongs to."
+prompt = """based on the paper, give me the following information about the attached $type
+- caption of the $type from the paper
+- detailed description of the $type in single paragraph
+- specify the section title of the paper that the $type belongs to.
+"""
 
 [double_check_figure]
-prompt = "does the image contain figure?"
+prompt = "does the image contain $type?"
+
+[extract_essentials]
+prompt = """extract and generate the following information from the given paper.
+- dense TL;DR of the paper in single paragraph
+- 3 takeaways from the paper
+- why the paper is important to researchers within 2000 characters
+"""
 
 [extract_sections]
 prompt = """extract the following information from the given paper.
