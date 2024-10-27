@@ -1,6 +1,7 @@
 import json
 import toml
 from PIL import Image
+from string import Template
 
 import google.generativeai as genai
 from google.ai.generativelanguage_v1beta.types import content
@@ -9,7 +10,7 @@ from pipeline.utils import upload_to_gemini, wait_for_files_active, prompts
 
 MODEL_NAME = "gemini-1.5-pro-002"
 
-def ask_gemini_for_coordinates(image_path):
+def ask_gemini_for_coordinates(image_path, media_type):
     # Create the model
     generation_config = {
         "temperature": 1,
@@ -72,17 +73,18 @@ def ask_gemini_for_coordinates(image_path):
     )
 
     prompt = prompts["extract_coordinates"]["prompt"]
+    prompt = Template(prompt).safe_substitute(type=media_type)
 
     response = chat_session.send_message(prompt)
     return json.loads(response.text)
 
-def crop_figures(idx, image_path, root_path):
+def crop_figures(idx, image_path, root_path, media_type):
     cropped_img_paths = []
     image = Image.open(image_path)  # Replace "image.jpg" with your image file
     width, height = image.size
 
     # call Gemini 1.5 Pro to obtain left, top, right, bottom coordinates
-    coordinates = ask_gemini_for_coordinates(image_path)
+    coordinates = ask_gemini_for_coordinates(image_path, media_type)
 
     norm_lefts, norm_tops, norm_rights, norm_bottoms = coordinates["x_min"], coordinates["y_min"], coordinates["x_max"], coordinates["y_max"]
     for i, (norm_left, norm_top, norm_right, norm_bottom) in enumerate(zip(norm_lefts, norm_tops, norm_rights, norm_bottoms)):
@@ -94,7 +96,8 @@ def crop_figures(idx, image_path, root_path):
 
         try:
             cropped_img = image.crop((left, top, right, bottom))
-            cropped_img_path = f"{root_path}/figure_{idx}_{i}.png"
+            cropped_img_path = f"{root_path}/{media_type}/{media_type}_{idx}_{i}.png"
+            print(cropped_img_path)
             cropped_img.save(cropped_img_path)
             cropped_img_paths.append(cropped_img_path)
         except:

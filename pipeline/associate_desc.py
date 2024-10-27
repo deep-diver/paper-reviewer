@@ -72,12 +72,9 @@ async def process_figure_and_table(figure_path, pdf_file_in_gemini, pbar, media_
         "section": associated_description["section"],
     }
 
-async def associate_description(media_paths, pdf_file_path, workers, media_type):
+async def associate_description(media_paths, pdf_file_in_gemini, workers, media_type):
     association_results = []
     association_tasks = []
-
-    pdf_file_in_gemini = upload_to_gemini(pdf_file_path)
-    wait_for_files_active([pdf_file_in_gemini])
 
     semaphore = asyncio.Semaphore(workers)
     with tqdm(total=len(media_paths)) as pbar:
@@ -89,4 +86,4 @@ async def associate_description(media_paths, pdf_file_path, workers, media_type)
         results = await asyncio.gather(*association_tasks)
         association_results.extend(result for result in results)
 
-    return association_results, pdf_file_in_gemini
+    return association_results

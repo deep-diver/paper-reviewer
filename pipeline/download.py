@@ -1,18 +1,19 @@
 import os
+import arxiv
 import requests
 
 def download_pdf(root_path, arxiv_id):
-    pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
-    response = requests.get(pdf_url)
+    os.mkdir(root_path)
+    os.mkdir(f"{root_path}/paper_images")
+    os.mkdir(f"{root_path}/figures")
+    os.mkdir(f"{root_path}/charts")
+    os.mkdir(f"{root_path}/tables")
 
-    if response.status_code == 200:
-        os.mkdir(root_path)
-        file_path = f"{root_path}/{arxiv_id}.pdf"
+    filepath = f"{root_path}/{arxiv_id}.pdf"
 
-        with open(file_path, "wb") as f:
-            f.write(response.content)
+    client = arxiv.Client()  # Create a Client instance
+    search = arxiv.Search(id_list=[arxiv_id])
+    paper = next(client.results(search))
+    paper.download_pdf(filename=f"{root_path}/{arxiv_id}.pdf")
 
-        return file_path
-    else:
-        print(f"Failed to download PDF from arXiv: {response.status_code}")
-        return None
+    return filepath

@@ -28,10 +28,12 @@ async def main(args):
     # 1. download pdf
     print(f"Downloading PDF from arXiv: {args.arxiv_id}")
     pdf_file_path = download_pdf(root_path, args.arxiv_id)
+    pdf_file_in_gemini = upload_to_gemini(pdf_file_path)
+    wait_for_files_active([pdf_file_in_gemini])
 
     # 2. convert pdf to images
     print(f"Converting PDF to images")
-    image_paths = pdf_to_images(pdf_file_path, root_path)
+    image_paths = pdf_to_images(pdf_file_path, f"{root_path}/paper_images")
 
     # 3. crop figures from images
     print(f"Cropping figures from images")
@@ -42,18 +44,22 @@ async def main(args):
 
     # 4. Double check if figure image file contians figure
     print(f"Double checking if figure image file actually contians figure")
-    figure_paths = await doublecheck_figures(figure_paths, args.workers, "figure")
+    figure_paths = await doublecheck_figures(figure_paths, pdf_file_in_gemini, args.workers, "figure")
     print(f"{len(figure_paths)} number of figures are remained. {figure_paths}.")
 
     print(f"Double checking if chart image file actually contians chart")
-    chart_paths = await doublecheck_figures(chart_paths, args.workers, "chart")
+    chart_paths = await doublecheck_figures(chart_paths, pdf_file_in_gemini, args.workers, "chart")
     print(f"{len(chart_paths)} number of charts are remained. {chart_paths}.")
+
+    print(f"Double checking if table file actually contians table")
+    table_paths = await doublecheck_figures(table_paths, pdf_file_in_gemini, args.workers, "table")
+    print(f"{len(table_paths)} number of tables are remained. {table_paths}.")
 
     # 5. associate each figure and table with description
     print(f"Associating each figure with relevant information")
-    association_figure_results, pdf_file_in_gemini = await associate_description(figure_paths, pdf_file_path, args.workers, "figure")
-    association_chart_results, pdf_file_in_gemini = await associate_description(chart_paths, pdf_file_path, args.workers, "chart")
-    association_table_results, pdf_file_in_gemini = await associate_description(table_paths, pdf_file_path, args.workers, "table")
+    association_figure_results = await associate_description(figure_paths, pdf_file_in_gemini, args.workers, "figure")
+    association_chart_results = await associate_description(chart_paths, pdf_file_in_gemini, args.workers, "chart")
+    association_table_results = await associate_description(table_paths, pdf_file_in_gemini, args.workers, "table")
 
     # 6. save the results
     print(f"Saving the figure information")

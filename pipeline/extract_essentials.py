@@ -14,8 +14,11 @@ def ask_gemini_for_essentials(pdf_file_in_gemini):
         "max_output_tokens": 8192,
         "response_schema": content.Schema(
             type = content.Type.OBJECT,
-            required = ["tldr", "takeaways", "reason"],
+            required = ["summary", "tldr", "takeaways", "reason"],
             properties = {
+                "summary": content.Schema(
+                    type = content.Type.STRING,
+                ),
                 "tldr": content.Schema(
                     type = content.Type.STRING,
                 ),
