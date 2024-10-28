@@ -11,7 +11,7 @@ start_date="$1"
 end_date="$2"
 
 # Loop through the date range
-while [[ "$start_date" <= "$end_date" ]]; do
+while [[ $(date -d "$start_date" +%s) -le $(date -d "$end_date" +%s) ]]; do
   echo "Processing papers for $start_date"
 
   # Fetch the list of papers for the current date
