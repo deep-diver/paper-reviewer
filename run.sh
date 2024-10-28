@@ -1,14 +1,15 @@
 #!/bin/sh
 
 # Check if two arguments are provided
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 <start_date> <end_date>"
-  echo "Example: $0 2024-10-20 2024-10-24"
+if [ $# -ne 3 ]; then
+  echo "Usage: $0 <start_date> <end_date> <num_threads>"
+  echo "Example: $0 2024-10-20 2024-10-24 4"
   exit 1
 fi
 
 start_date="$1"
 end_date="$2"
+num_threads="$3"
 
 # Loop through the date range
 while [[ $(date -j -f "%Y-%m-%d" "$start_date" +%s) -le $(date -j -f "%Y-%m-%d" "$end_date" +%s) ]]; do
@@ -23,7 +24,7 @@ while [[ $(date -j -f "%Y-%m-%d" "$start_date" +%s) -le $(date -j -f "%Y-%m-%d" 
   done
 
   # Run your Python script in parallel for each paper
-  jq -r '.[].paper.id' daily_papers.json | xargs -I {} -P 4 sh -c "python main.py --arxiv-id {} --use-upstage"
+  jq -r '.[].paper.id' daily_papers.json | xargs -I {} -P "$num_threads" sh -c "python main.py --arxiv-id {} --use-upstage"
 
   # Increment the date (macOS compatible)
   start_date=$(date -j -v+1d -f "%Y-%m-%d" "$start_date" +%Y-%m-%d)
