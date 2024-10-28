@@ -22,6 +22,10 @@ draft: false
 {% raw %}{{< icon "link" >}} &nbsp; read the paper on arXiv{% endraw %}
 {% raw %}{{< /button >}}{% endraw %}
 
+{% raw %}{{< button{% endraw %} href="{{ hf_url }}"{% raw %} target="_self" >}}{% endraw %}
+{% raw %}{{< icon "hf-logo" >}} &nbsp; on Hugging Face{% endraw %}
+{% raw %}{{< /button >}}{% endraw %}
+
 #### Why does it matter?
 {{ reason_why_matter }}
 #### Key Takeaways
@@ -43,26 +47,38 @@ draft: false
 
 {% if first_figure %}
 
-![]({{ first_figure.figure_path }} "🔼 {{ first_figure.caption }}")
+![]({{ first_figure.figure_path }})
 
-> {{ first_figure.description }}
+> 🔼 {{ first_figure.description }}
+> <details>
+> <summary>read the caption</summary>
+> {{ first_figure.caption }}
+> </details>
 
 {% endif %}
 
 {% if first_chart %}
 
-![]({{ first_chart.figure_path }} "🔼 {{ first_chart.caption }}")
+![]({{ first_chart.figure_path }})
 
-> {{ first_chart.description }}
+> 🔼 {{ first_chart.description }}
+> <details>
+> <summary>read the caption</summary>
+> {{ first_chart.caption }}
+> </details>
 
 {% endif %}
 
 {% if first_table %}
 
-{% raw %}{{< table-caption{% endraw %} caption="🔽 {{ first_table.caption }}"{% raw %} >}}{% endraw %}
+{% raw %}{{< table-caption >}}{% endraw %}
 {{ first_table.content }}{% raw %}{{< /table-caption >}}{% endraw %}
 
-> {{ first_table.description }}
+> 🔼 {{ first_table.description }}
+> <details>
+> <summary>read the caption</summary>
+> {{ first_table.caption }}
+> </details>
 
 {% endif %}
 
@@ -73,9 +89,14 @@ draft: false
 {% raw %}</summary>{% endraw %}
 
 {% for figure in other_figures %}
-![]({{ figure.figure_path }} "🔼 {{ figure.caption }}")
+![]({{ figure.figure_path }})
 
-> {{ figure.description }}
+> 🔼 {{ figure.description }}
+> <details>
+> <summary>read the caption</summary>
+> {{ figure.caption }}
+> </details>
+
 
 {% endfor %}
 {% raw %}</details>{% endraw %}
@@ -89,7 +110,11 @@ draft: false
 {% for chart in other_charts %}
 ![]({{ chart.figure_path }} "🔼 {{ chart.caption }}")
 
-> {{ chart.description }}
+> 🔼 {{ chart.description }}
+> <details>
+> <summary>read the caption</summary>
+> {{ chart.caption }}
+> </details>
 
 {% endfor %}
 {% raw %}</details>{% endraw %}
@@ -101,8 +126,14 @@ draft: false
 {% raw %}</summary>{% endraw %}
 
 {% for table in other_tables %}
-{% raw %}{{< table-caption{% endraw %} caption="🔽 {{ table.caption }}"{% raw %} >}}{% endraw %}
-{{ table.content }}{% raw %}{{< /table-caption >}}{% endraw %}
+{% raw %}{{< table-caption >}}{% endraw %}
+{{ table.content }}{% raw %}{{< /table-caption >}}
+> 🔼 {{ table.description }}
+> <details>
+> <summary>read the caption</summary>
+> {{ table.caption }}
+> </details>
+{% endraw %}
 
 > {{ table.description }}
 

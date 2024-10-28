@@ -31,14 +31,12 @@ For the given research paper, please provide the following:
 1. Catchy Summary: Condense the paper's main contribution into a single, eye-catching sentence with less than 200 characters. This should be easily understandable and pique the reader's interest.
 2. TL;DR:  Provide a comprehensive summary of the paper in around 2000 characters. This should be highly readable and accessible to researchers from various backgrounds, even if they are not experts in the specific field. Focus on clarity and avoid technical jargon as much as possible. Explain key concepts, methods, and findings in a way that is easy to grasp.
 3. Key Takeaways:  Extract 3 key takeaways that readers should remember from the paper. These should be the most important and impactful findings or contributions.
-4. Importance to Researchers:  Explain why this paper is important for researchers in about 2000 characters.  Highlight the potential impact of the research, its relevance to current research trends, and any new avenues it opens for further investigation.
+4. Importance to Researchers:  Explain why this paper is important for researchers in about 1000 characters.  Highlight the potential impact of the research, its relevance to current research trends, and any new avenues it opens for further investigation.
 
 Remember to:
 - Avoid redundancy: Ensure that the information provided in each section is unique and does not overlap excessively.
 - Focus on the main idea: Prioritize the core contributions and findings of the paper, ensuring that readers can grasp the main idea effectively.
 - Maintain a professional and objective tone: Present the information in a neutral and unbiased manner.
-
-Please analyze the provided research paper and generate the requested summary information according to these guidelines.
 """
 
 [extract_sections]

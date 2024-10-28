@@ -103,7 +103,7 @@ def main(args):
         shutil.copy(f"{args.arxiv_id}/{first_figure['figure_path']}", f"articles/{args.arxiv_id}/cover.png")
 
     paper_info = get_paper_info(args.arxiv_id)
-    paper_summary = essential_json["summary"]
+    paper_summary = essential_json["summary"].replace('"', "'")
     if len(paper_summary) > 200:
         paper_summary = f"{paper_summary[:200]}..."
 
@@ -116,8 +116,9 @@ def main(args):
         'paper_summary': f"\"{paper_summary}\"",
         'publish_date': paper_info["publish_date"],
         'arxiv_url': f'https://arxiv.org/abs/{args.arxiv_id}',
+        'hf_url': f'https://huggingface.co/papers/{args.arxiv_id}',
         'tldr': essential_json["tldr"],
-        'reason_why_matter': essential_json["reason"],
+        'reason_why_matter': essential_json["importance"],
         'takeaways': essential_json["takeaways"],
         'first_figure': first_figure,
         'first_chart': first_chart,

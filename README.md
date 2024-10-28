@@ -1,5 +1,7 @@
 # Paper Reviewer
 
+Paper Reviewer is uses LLMs and Document Parsing tools to extract information from papers. This project powers the [AI Paper Reviewer](https://deep-diver.github.io/ai-paper-reviewer) website.
+
 ## Models
 - Gemini 1.5 Flash 002: Image cropping, image description, section details, references
 - Gemini 1.5 Flash 8B: double-checking the cropped images
