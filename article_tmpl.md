@@ -8,6 +8,8 @@ date: {{ publish_date }}
 draft: false
 ---
 
+{% raw %}{{< keyword >}}{% endraw %} {{ arxiv_id }} {% raw %}{{< /keyword >}}{% endraw %}
+
 ### TL;DR
 
 {% raw %}
@@ -108,7 +110,7 @@ draft: false
 {% raw %}</summary>{% endraw %}
 
 {% for chart in other_charts %}
-![]({{ chart.figure_path }} "🔼 {{ chart.caption }}")
+![]({{ chart.figure_path }})
 
 > 🔼 {{ chart.description }}
 > <details>
@@ -127,16 +129,12 @@ draft: false
 
 {% for table in other_tables %}
 {% raw %}{{< table-caption >}}{% endraw %}
-{{ table.content }}{% raw %}{{< /table-caption >}}
+{{ table.content }}{% raw %}{{< /table-caption >}}{% endraw %}
 > 🔼 {{ table.description }}
 > <details>
 > <summary>read the caption</summary>
 > {{ table.caption }}
 > </details>
-{% endraw %}
-
-> {{ table.description }}
-
 {% endfor %}
 {% raw %}</details>{% endraw %}
 {% endif %}
