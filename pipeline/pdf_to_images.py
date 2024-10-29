@@ -1,7 +1,6 @@
 from pdf2image import convert_from_path
 
 def pdf_to_images(pdf_file_path, root_path):
-    print(pdf_file_path)
     images = convert_from_path(pdf_file_path)
     image_paths = []
 
