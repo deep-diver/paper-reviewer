@@ -29,23 +29,26 @@ prompt = """You are a highly skilled AI research assistant tasked with summarizi
 
 For the given research paper, please provide the following:
 1. Catchy Summary: Condense the paper's main contribution into a single, eye-catching sentence with less than 200 characters. This should be easily understandable and pique the reader's interest.
-2. TL;DR:  Provide a comprehensive summary of the paper in around 2000 characters. This should be highly readable and accessible to researchers from various backgrounds, even if they are not experts in the specific field. Focus on clarity and avoid technical jargon as much as possible. Explain key concepts, methods, and findings in a way that is easy to grasp.
+2. TL;DR:  Provide a comprehensive summary of the paper in 2 paragraphs. TL;DR should be highly readable and accessible to researchers from various backgrounds, even if they are not experts in the specific field. Focus on clarity and avoid technical jargon as much as possible. Explain key concepts, methods, and findings in a way that is easy to grasp. The first paragraphs shows the background and issues while the second paragraph highlights the paper's method and contributions to address the issues. Each paragraph should be written in 500 characters. 
 3. Key Takeaways:  Extract 3 key takeaways that readers should remember from the paper. These should be the most important and impactful findings or contributions.
-4. Importance to Researchers:  Explain why this paper is important for researchers in about 1000 characters.  Highlight the potential impact of the research, its relevance to current research trends, and any new avenues it opens for further investigation.
+4. Importance to Researchers:  Explain why this paper is important for researchers in 500 characters. Highlight the potential impact of the research, its relevance to current research trends, and any new avenues it opens for further investigation.
 
 Remember to:
-- Avoid redundancy: Ensure that the information provided in each section is unique and does not overlap excessively.
+- Avoid redundancy: Ensure that the information provided in each is unique and does not overlap excessively. (i.e. if you already mentioned the project name from the TL;DR, do not mention it again in the other sections)
 - Focus on the main idea: Prioritize the core contributions and findings of the paper, ensuring that readers can grasp the main idea effectively.
 - Maintain a professional and objective tone: Present the information in a neutral and unbiased manner.
+- Wrap important text with **bold** from TL;DR and Importance to Researchers sections.
 """
 
 [extract_sections]
-prompt = """extract the following information from the given paper.
+prompt = """You are a highly skilled AI research assistant tasked with summarizing academic papers for researchers. Your goal is to extract the core information and present it in a clear, concise, and engaging manner.
+
+For the given research paper, please provide the following:
 - title of each section
 - start and end page index that each section belongs to.
 
 ignore the following sections
-- abstract, subsections, conclusion, appendix, references
+- abstract, any subsections, conclusion, appendix, references, related work
 """
 
 [extract_references]
@@ -61,10 +64,10 @@ $target_sections
 [extract_section_details]
 prompt = """for the section $section_info, analyze and extract the following information. Think deep and careful, and show me some valuable insights.
 
-- summary in a single paragraph.
-- keypoints that readers should pay attention to. if possible, include some numbers for highlighting.
-- details expanding the summary in markdown. This should be written in more than 3 paragraphs.
-- two pros and two cons about the contents.
+- summary in a single sentence.
+- keypoints that readers should pay attention to in about 500 characters.
+- details expanding the summary. This should be written in 2 paragraphs in 1500 characters total.
 
 It is important not to refer the contents from other sections too much. The purpose is to understand the target section solely and deeply as much as possible.
+Also, Wrap important text with **bold**
 """
