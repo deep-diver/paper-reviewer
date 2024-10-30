@@ -17,7 +17,8 @@ def get_paper_info(arxiv_id):
     paper = next(client.results(search))
     return {
         "title": paper.title,
-        "publish_date": paper.published.strftime('%Y-%m-%d')
+        "publish_date": paper.published.strftime('%Y-%m-%d'),
+        "author": f"{str(paper.authors[0])} et el."
     }
   except Exception as e:
     print(f"Error fetching paper information: {e}")
@@ -103,6 +104,9 @@ def upload_paper_imgs(arxiv_id, target="r2"):
     return paper_imgs
 
 def upload_images_from_json(arxiv_id, json_data, target="r2"):
+    if len(json_data) == 1 and json_data[0] is None:
+        return [None]
+
     for i in range(len(json_data)):
         data = json_data[i]
         figure_path = os.path.join("articles", arxiv_id, data["figure_path"])

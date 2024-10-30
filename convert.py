@@ -79,12 +79,11 @@ def main(args):
 
     # 9. get the paper info
     paper_info = get_paper_info(args.arxiv_id)
-    print(paper_info)
     paper_summary = essential_json["summary"].replace('"', "'")
     if len(paper_summary) > 200:
         paper_summary = f"{paper_summary[:200]}..."
 
-    essentials_json = linebreaks_for_essentials(essential_json)
+    essential_json = linebreaks_for_essentials(essential_json)
 
     # 10. render the template
     env = Environment(loader=FileSystemLoader(''))  # 'templates' is your template directory
@@ -93,6 +92,8 @@ def main(args):
         'hf_daily_papers_date_tag': args.hf_daily_papers_date_tag,
         'paper_title': f"\"{paper_info['title']}\"",
         'arxiv_id': args.arxiv_id,
+        "author": paper_info["author"],
+        "affiliation": essential_json["affiliation"],
         'paper_summary': f"\"{paper_summary}\"",
         'publish_date': paper_info["publish_date"],
         'arxiv_url': f'https://arxiv.org/abs/{args.arxiv_id}',

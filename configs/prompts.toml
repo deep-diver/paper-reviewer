@@ -37,7 +37,18 @@ Remember to:
 - Avoid redundancy: Ensure that the information provided in each is unique and does not overlap excessively. (i.e. if you already mentioned the project name from the TL;DR, do not mention it again in the other sections)
 - Focus on the main idea: Prioritize the core contributions and findings of the paper, ensuring that readers can grasp the main idea effectively.
 - Maintain a professional and objective tone: Present the information in a neutral and unbiased manner.
-- Wrap important text with **bold** from TL;DR and Importance to Researchers sections.
+- Wrap text with **bold** in 'TL;DR' and 'Importance to Researchers' sections if it has to be highlighted.
+"""
+
+[extract_affiliation]
+prompt = """Extract a single affiliation of the main author from the paper.
+
+Some of the known affiliations are listed below. 
+If this paper's affiliation is not listed, suggest new affiliation with not too much length. 
+Otherwise, return the exact affiliation name that the paper belongs to from the list below.
+The affiliation name should not contain any definite article (i.e. "the", "a", "an").
+
+known affiliations: $known_affiliations
 """
 
 [extract_sections]

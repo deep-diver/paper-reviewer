@@ -12,6 +12,7 @@ from pipeline.extract_sections import extract_sections
 from pipeline.extract_section_details import extract_section_details
 from pipeline.extract_references import extract_references
 from pipeline.extract_essentials import extract_essentials
+from pipeline.extract_affiliation import extract_affiliation
 from pipeline.utils import upload_to_gemini, wait_for_files_active
 
 def parse_args():
@@ -19,6 +20,7 @@ def parse_args():
     parser.add_argument('--arxiv-id', type=str, help='arXiv ID')
     parser.add_argument('--workers', type=int, default=10, help='Number of workers')
     parser.add_argument('--use-upstage', action='store_true', help='Use Upstage to extract figures from images')
+    parser.add_argument('--known-affiliations-path', type=str, default='configs/known_affiliations.txt', help='Path to known affiliations')
     return parser.parse_args()
 
 async def main(args):
@@ -84,17 +86,22 @@ async def main(args):
     print(f"Extracting essential information from the pdf")
     essential_info = extract_essentials(pdf_file_in_gemini)
 
+    # 8. extract affiliation from the pdf
+    print(f"Extracting affiliation from the pdf")
+    affiliation = extract_affiliation(pdf_file_in_gemini, args.known_affiliations_path)
+    essential_info["affiliation"] = affiliation["affiliation"]
+
     print(f"Saving essential information")
     results_path = f"{root_path}/essential.json"
     with open(results_path, "w") as f:
         json.dump(essential_info, f)
     print(f"Essential information is saved to {results_path}")
 
-    # 8. extract sections from the pdf  
+    # 9. extract sections from the pdf  
     print(f"Extracting section list from the pdf")
     sections = extract_sections(pdf_file_in_gemini)["sections"]
 
-    # 9. extract section details from the pdf
+    # 10. extract section details from the pdf
     print(f"Extracting section details from the pdf")
     section_detail_list = await extract_section_details(pdf_file_in_gemini, sections, args.workers)
 
@@ -105,9 +112,9 @@ async def main(args):
     results_path = f"{root_path}/sections.json"
     with open(results_path, "w") as f:
         json.dump(sections, f)
-    print(f"Section details are saved to {results_path}")    
+    print(f"Section details are saved to {results_path}")
 
-    # 10. extract references from the pdf
+    # 11. extract references from the pdf
     print(f"Extracting references from the pdf")
     references = extract_references(pdf_file_in_gemini, sections)
 

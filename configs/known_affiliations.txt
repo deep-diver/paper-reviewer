@@ -1,0 +1,43 @@
+Amazon
+AIRI
+Anthropic
+Apple
+Carnegie Mellon University
+Cornell University
+DeepMind
+Electronics and Telecommunications Research Institute
+ETH Zurich
+Google DeepMind
+Google Research
+Harvard University
+Hong Kong University of Science and Technology
+IBM Research
+Intel Labs
+Meta AI
+Microsoft Research
+MIT
+NVIDIA Research
+OpenAI
+Peking University
+Samsung Research
+Stanford University
+Tsinghua University
+UC Berkeley
+University of California, Berkeley
+University of California, Davis
+University of California, Irvine
+University of California, Los Angeles
+University of California, Riverside
+University of California, San Diego
+University of California, San Francisco
+University of California, Santa Barbara
+University of California, Santa Cruz
+University of Cambridge
+University of Edinburgh
+University of Michigan
+University of Oxford
+University of Tokyo
+University of Toronto
+University of Tsukuba
+University of Washington
+Tencent AI Lab
