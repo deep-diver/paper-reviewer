@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Check if two arguments are provided
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
   echo "Usage: $0 <start_date> <end_date>"
   echo "Example: $0 2024-10-20 2024-10-24"
   exit 1
