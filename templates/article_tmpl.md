@@ -1,14 +1,17 @@
 ---
 title: {{ paper_title }}
 summary: {{ paper_summary }}
-categories: ["AI Generated"]
-tags: ["🔖 {{ publish_date[2:] }}", {% if hf_daily_papers_date_tag %}"🤗 {{ hf_daily_papers_date_tag[2:] }}"{% endif %}]
+categories: ["AI Generated", {% if hf_daily_papers_date_tag %}"Hugging Face Daily Papers"{% endif %}]
+tags: ["🔖 {{ publish_date[2:] }}", {% if hf_daily_papers_date_tag %}"🤗 {{ hf_daily_papers_date_tag[2:] }}",{% endif %} {% if affiliation %}"🏢 {{ affiliation }}",{% endif %}]
 showSummary: true
 date: {{ publish_date }}
 draft: false
 ---
 
-{% raw %}{{< keyword >}}{% endraw %} {{ arxiv_id }} {% raw %}{{< /keyword >}}{% endraw %}
+{% raw %}{{< keywordList >}}{% endraw %}
+{% raw %}{{< keyword icon="fingerprint" >}}{% endraw %} {{ arxiv_id }} {% raw %}{{< /keyword >}}{% endraw %}
+{% raw %}{{< keyword icon="writer" >}}{% endraw %} {{ author }} {% raw %}{{< /keyword >}}{% endraw %}
+{% raw %}{{< /keywordList >}}{% endraw %}
 
 ### TL;DR
 
@@ -84,6 +87,8 @@ draft: false
 
 {% endif %}
 
+{% if other_figures|length > 1 or other_charts|length > 1 or other_tables|length > 1 %}
+
 ### More visual insights
 {% if other_figures|length > 1 %}
 {% raw %}<details>{% endraw %}
@@ -137,6 +142,8 @@ draft: false
 > </details>
 {% endfor %}
 {% raw %}</details>{% endraw %}
+{% endif %}
+
 {% endif %}
 
 ### Full paper
