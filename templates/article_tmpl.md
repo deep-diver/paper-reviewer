@@ -1,8 +1,8 @@
 ---
 title: {{ paper_title }}
 summary: {{ paper_summary }}
-categories: ["AI Generated", {% if hf_daily_papers_date_tag %}"Hugging Face Daily Papers"{% endif %}]
-tags: ["🔖 {{ publish_date[2:] }}", {% if hf_daily_papers_date_tag %}"🤗 {{ hf_daily_papers_date_tag[2:] }}",{% endif %} {% if affiliation %}"🏢 {{ affiliation }}",{% endif %}]
+categories: ["AI Generated", {% if hf_daily_papers_date_tag %}"🤗 Daily Papers"{% endif %}]
+tags: [{% if category %}"{{ category }}",{% endif %} {% if sub_category %}"{{ sub_category }}",{% endif %} {% if affiliation %}"🏢 {{ affiliation }}",{% endif %}]
 showSummary: true
 date: {{ publish_date }}
 draft: false
@@ -13,7 +13,18 @@ draft: false
 {% raw %}{{< keywordList >}}{% endraw %}
 {% raw %}{{< keyword icon="fingerprint" >}}{% endraw %} {{ arxiv_id }} {% raw %}{{< /keyword >}}{% endraw %}
 {% raw %}{{< keyword icon="writer" >}}{% endraw %} {{ author }} {% raw %}{{< /keyword >}}{% endraw %}
+{% if hf_daily_papers_date_tag %} 
+{% raw %}{{< keyword icon="hf-logo" >}}{% endraw %} {{ hf_daily_papers_date_tag }} {% raw %}{{< /keyword >}}{% endraw %}
+{% endif %} 
 {% raw %}{{< /keywordList >}}{% endraw %}
+
+{% raw %}{{< button{% endraw %} href="{{ arxiv_url }}"{% raw %} target="_self" >}}{% endraw %}
+{% raw %}↗ arXiv{% endraw %}
+{% raw %}{{< /button >}}{% endraw %}
+&nbsp; 
+{% raw %}{{< button{% endraw %} href="{{ hf_url }}"{% raw %} target="_self" >}}{% endraw %}
+{% raw %}↗ Hugging Face{% endraw %}
+{% raw %}{{< /button >}}{% endraw %}
 
 ### TL;DR
 
@@ -25,16 +36,6 @@ draft: false
 {{< /lead >}}
 {% endraw %}
 
-{% raw %}{{< button{% endraw %} href="{{ arxiv_url }}"{% raw %} target="_self" >}}{% endraw %}
-{% raw %}{{< icon "link" >}} &nbsp; read the paper on arXiv{% endraw %}
-{% raw %}{{< /button >}}{% endraw %}
-<br><br>
-{% raw %}{{< button{% endraw %} href="{{ hf_url }}"{% raw %} target="_self" >}}{% endraw %}
-{% raw %}{{< icon "hf-logo" >}} &nbsp; on Hugging Face{% endraw %}
-{% raw %}{{< /button >}}{% endraw %}
-
-#### Why does it matter?
-{{ reason_why_matter }}
 #### Key Takeaways
 
 {% raw %}{{< alert "star" >}}{% endraw %}
@@ -48,6 +49,9 @@ draft: false
 {% raw %}{{< alert "star" >}}{% endraw %}
 {% raw %}{{< typeit speed=10 startDelay=2000 lifeLike=true >}}{% endraw %} {{ takeaways[2] }} {% raw %}{{< /typeit >}}{% endraw %}
 {% raw %}{{< /alert >}}{% endraw %}
+
+#### Why does it matter?
+{{ reason_why_matter }}
 
 ------
 #### Visual Insights

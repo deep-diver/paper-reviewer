@@ -14,12 +14,28 @@ prompt = """based on the paper, give me the following information about the atta
 """
 
 [double_check_figure]
-prompt = "does the image contain $type from the paper?"
+prompt = """The provided $type of image was parsed from the paper by the other AI.
+
+That AI could have made a mistake, so check carefully with the following criteria:
+- Does it actually come from the paper?
+- Is it correctly parsed?
+- Is it not a partial image? (i.e. not the whole image)
+
+If one of the criterias is not met, say no.
+Only if all criterias are met, say yes.
+"""
 
 [double_check_table]
-prompt = """the below html was extracted from the paper by AI.
-The AI determined it as table, but it actually might not be a table (i.e. pseudo-code, etc.).
-check the html carefully, and say whether it comes from the paper or not.
+prompt = """The below HTML table was parsed from the paper by the other AI.
+
+That AI could have made a mistake, so check the HTML table carefully with the the following criteria:
+- Does it actually come from the paper?
+- Is it correctly parsed?
+- Should it be really a table? (i.e. pseudo-code, etc.)
+- Does it contain any insightful information? (i.e. not just a list of authors, etc.)
+
+If one of the criterias is not met, say no.
+Only if all criterias are met, say yes.
 --------------------------------
 $table
 """
@@ -37,7 +53,7 @@ Remember to:
 - Avoid redundancy: Ensure that the information provided in each is unique and does not overlap excessively. (i.e. if you already mentioned the project name from the TL;DR, do not mention it again in the other sections)
 - Focus on the main idea: Prioritize the core contributions and findings of the paper, ensuring that readers can grasp the main idea effectively.
 - Maintain a professional and objective tone: Present the information in a neutral and unbiased manner.
-- Wrap text with **bold** in 'TL;DR' and 'Importance to Researchers' sections if it has to be highlighted.
+- Wrap text to be highlighted with **bold**
 """
 
 [extract_affiliation]
@@ -49,6 +65,17 @@ Otherwise, return the exact affiliation name that the paper belongs to from the 
 The affiliation name should not contain any definite article (i.e. "the", "a", "an").
 
 known affiliations: $known_affiliations
+"""
+
+[extract_category]
+prompt = """Extract a category and sub-category of the paper.
+
+Some of the known categories and sub-categories are listed below.
+If this paper's category and sub-category are not listed, suggest new ones with not too much length.
+Otherwise, return the exact category and sub-category name that the paper belongs to from the list below.
+The category and sub-category name should not contain any definite article (i.e. "the", "a", "an").
+
+known categories: $known_categories
 """
 
 [extract_sections]

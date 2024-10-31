@@ -94,6 +94,8 @@ def main(args):
         'arxiv_id': args.arxiv_id,
         "author": paper_info["author"],
         "affiliation": essential_json["affiliation"],
+        "category": essential_json["categories"]["main_category"],
+        "sub_category": essential_json["categories"]["sub_category"],
         'paper_summary': f"\"{paper_summary}\"",
         'publish_date': paper_info["publish_date"],
         'arxiv_url': f'https://arxiv.org/abs/{args.arxiv_id}',

@@ -13,6 +13,7 @@ from pipeline.extract_section_details import extract_section_details
 from pipeline.extract_references import extract_references
 from pipeline.extract_essentials import extract_essentials
 from pipeline.extract_affiliation import extract_affiliation
+from pipeline.extract_category import extract_category
 from pipeline.utils import upload_to_gemini, wait_for_files_active
 
 def parse_args():
@@ -21,6 +22,7 @@ def parse_args():
     parser.add_argument('--workers', type=int, default=10, help='Number of workers')
     parser.add_argument('--use-upstage', action='store_true', help='Use Upstage to extract figures from images')
     parser.add_argument('--known-affiliations-path', type=str, default='configs/known_affiliations.txt', help='Path to known affiliations')
+    parser.add_argument('--known-categories-path', type=str, default='configs/known_categories.json', help='Path to known categories')
     return parser.parse_args()
 
 async def main(args):
@@ -90,6 +92,9 @@ async def main(args):
     print(f"Extracting affiliation from the pdf")
     affiliation = extract_affiliation(pdf_file_in_gemini, args.known_affiliations_path)
     essential_info["affiliation"] = affiliation["affiliation"]
+
+    categories = extract_category(pdf_file_in_gemini, args.known_categories_path)
+    essential_info["categories"] = categories
 
     print(f"Saving essential information")
     results_path = f"{root_path}/essential.json"

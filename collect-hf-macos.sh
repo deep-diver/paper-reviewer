@@ -24,15 +24,15 @@ while [[ $(date -j -f "%Y-%m-%d" "$start_date" +%s) -le $(date -j -f "%Y-%m-%d" 
   # Fetch the list of papers for the current date
   curl "https://huggingface.co/api/daily_papers?date=$start_date" -o daily_papers.json
   
-  jq -r '.[].paper.id' daily_papers.json | while read -r id; do
-    rm -rf "$id"
-
-    if echo "${existing_articles[@]}" | grep -qw "$id"; then
-      echo "Skipping $id - already exists"
-    else
-      python collect.py --arxiv-id "$id" --use-upstage
+  jq -r '.[].paper.id' daily_papers.json | xargs -I {} -P "$num_threads" sh -c '
+    id={}; 
+    rm -rf "$id"; 
+    if echo "${existing_articles[@]}" | grep -qw "$id"; then 
+      echo "Skipping $id - already exists"; 
+    else 
+      python collect.py --arxiv-id "$id" --use-upstage; 
     fi
-  done
+  '
 
   # jq -r '.[].paper.id' daily_papers.json | xargs -I {} -P "$num_threads" sh -c "python collect.py --arxiv-id {} --use-upstage"
 

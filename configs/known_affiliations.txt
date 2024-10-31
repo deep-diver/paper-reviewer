@@ -4,11 +4,11 @@ Anthropic
 Apple
 Carnegie Mellon University
 Cornell University
-DeepMind
 Electronics and Telecommunications Research Institute
 ETH Zurich
 Google DeepMind
 Google Research
+Google Cloud AI
 Harvard University
 Hong Kong University of Science and Technology
 IBM Research
@@ -19,19 +19,20 @@ MIT
 NVIDIA Research
 OpenAI
 Peking University
+Princeton University
 Samsung Research
 Stanford University
 Tsinghua University
 UC Berkeley
-University of California, Berkeley
-University of California, Davis
-University of California, Irvine
-University of California, Los Angeles
-University of California, Riverside
-University of California, San Diego
-University of California, San Francisco
-University of California, Santa Barbara
-University of California, Santa Cruz
+UC Berkeley
+UC Davis
+UC Irvine
+UC Los Angeles
+UC Riverside
+UC San Diego
+UC San Francisco
+UC Santa Barbara
+UC Santa Cruz
 University of Cambridge
 University of Edinburgh
 University of Michigan
@@ -40,4 +41,5 @@ University of Tokyo
 University of Toronto
 University of Tsukuba
 University of Washington
+University of Texas at Austin
 Tencent AI Lab

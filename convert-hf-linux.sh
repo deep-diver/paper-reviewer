@@ -9,7 +9,6 @@ fi
 
 start_date="$1"
 end_date="$2"
-
 upload_images_r2="$3"
 
 if [[ "$upload_images_r2" == "true" ]]; then

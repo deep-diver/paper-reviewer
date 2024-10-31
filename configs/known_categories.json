@@ -1,0 +1,103 @@
+{
+  "main_categories": {
+    "Natural Language Processing": {
+      "sub_categories": [
+        "Large Language Models",
+        "Machine Translation",
+        "Text Generation",
+        "Question Answering",
+        "Information Extraction",
+        "Text Classification",
+        "Named Entity Recognition",
+        "Sentiment Analysis",
+        "Dialogue Systems",
+        "Text Summarization"
+      ]
+    },
+    "Computer Vision": {
+      "sub_categories": [
+        "Image Classification",
+        "Object Detection",
+        "Image Segmentation",
+        "Image Generation",
+        "Video Understanding",
+        "3D Vision",
+        "Visual Question Answering",
+        "Face Recognition",
+        "Action Recognition",
+        "Scene Understanding"
+      ]
+    },
+    "Machine Learning": {
+      "sub_categories": [
+        "Deep Learning",
+        "Reinforcement Learning",
+        "Few-Shot Learning",
+        "Transfer Learning",
+        "Meta Learning",
+        "Active Learning",
+        "Unsupervised Learning",
+        "Semi-Supervised Learning",
+        "Self-Supervised Learning",
+        "Federated Learning"
+      ]
+    },
+    "AI Applications": {
+      "sub_categories": [
+        "Healthcare",
+        "Robotics",
+        "Autonomous Vehicles",
+        "Finance",
+        "Education",
+        "Gaming",
+        "Security",
+        "Agriculture",
+        "Manufacturing",
+        "Smart Cities"
+      ]
+    },
+    "AI Theory": {
+      "sub_categories": [
+        "Optimization",
+        "Generalization",
+        "Representation Learning",
+        "Causality",
+        "Interpretability",
+        "Fairness",
+        "Robustness",
+        "Privacy",
+        "Ethics",
+        "Safety"
+      ]
+    },
+    "Multimodal Learning": {
+      "sub_categories": [
+        "Vision-Language Models",
+        "Audio-Visual Learning",
+        "Cross-Modal Retrieval",
+        "Multimodal Generation",
+        "Multimodal Understanding",
+        "Sensor Fusion",
+        "Multimodal Reasoning",
+        "Embodied AI",
+        "Human-AI Interaction",
+        "Multimodal Datasets"
+      ]
+    },
+    "Speech and Audio": {
+      "sub_categories": [
+        "Speech Recognition",
+        "Text-to-Speech",
+        "Speech Synthesis",
+        "Voice Conversion",
+        "Audio Generation",
+        "Sound Classification",
+        "Music Generation",
+        "Audio Enhancement",
+        "Speaker Recognition",
+        "Acoustic Scene Analysis"
+      ]
+    }
+  }
+}
+
