@@ -25,15 +25,15 @@ while [[ $(date -d "$start_date" +%s) -le $(date -d "$end_date" +%s) ]]; do
   # Fetch the list of papers for the current date
   curl "https://huggingface.co/api/daily_papers?date=$start_date" -o daily_papers.json
 
-  jq -r '.[].paper.id' daily_papers.json | while read -r id; do
-    rm -rf "$id"
-
+  jq -r '.[].paper.id' daily_papers.json | xargs -I {} -P "$num_threads" sh -c '
+    id={}; 
+    rm -rf "$id";
     if echo "${existing_articles[@]}" | grep -qw "$id"; then
-      echo "Skipping $id - already exists"
+      echo "Skipping $id - already exists";
     else
-      python collect.py --arxiv-id "$id" --use-upstage
+      python collect.py --arxiv-id "$id" --stop-at-no-html;
     fi
-  done
+  '
   
   # Increment the date (Linux compatible)
   start_date=$(date -d "$start_date + 1 day" +%Y-%m-%d)
