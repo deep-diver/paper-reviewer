@@ -28,7 +28,7 @@ while [[ $(date -j -f "%Y-%m-%d" "$start_date" +%s) -le $(date -j -f "%Y-%m-%d" 
   jq -r '.[].paper.id' daily_papers.json | while read -r id; do
     rm -rf articles/$id
     if [ -d "$id" ]; then
-      python convert.py --arxiv-id $id --hf-daily-papers-date-tag $start_date $upload_images_r2_flag
+      python convert.py --arxiv-id $id --hf-daily-papers-date-tag $start_date $upload_images_r2_flag --stop-at-no-html
     fi  
   done
 

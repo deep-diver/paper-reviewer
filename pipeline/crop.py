@@ -4,29 +4,28 @@ from tqdm import tqdm
 from functools import reduce
 
 from pipeline.crop_gemini import crop_figures as crop_figures_gemini
+from pipeline.crop_gemini import extract_tables as extract_tables_gemini
 from pipeline.crop_upstage import crop_figures as crop_figures_upstage
 
-async def process_images_upstage(image_paths, root_path, workers):
-    pass
+async def gemini_process_image(i, image_path, root_path, pbar, media_type):
+    figure_paths = crop_figures_gemini(i, image_path, root_path) if media_type == "figures" else extract_tables_gemini(i, image_path, root_path)
+    pbar.update(1)
+    if isinstance(figure_paths, list):
+        return figure_paths
+    else:
+        return [figure_paths]
 
-async def worker(semaphore, i, image_path, root_path, pbar, media_type=None):
+
+async def gemini_worker(semaphore, i, image_path, root_path, pbar, media_type=None):
     async with semaphore:
-        return await process_image(i+1, image_path, root_path, pbar, media_type)
+        return await gemini_process_image(i+1, image_path, root_path, pbar, media_type)
 
-async def process_images(image_paths, root_path, workers, media_type):
+async def gemini_process_images(image_paths, root_path, workers, media_type):
     semaphore = asyncio.Semaphore(workers)
     with tqdm(total=len(image_paths)) as pbar:
-        cropping_tasks = [worker(semaphore, i, image_path, root_path, pbar, media_type) for i, image_path in enumerate(image_paths)]
+        cropping_tasks = [gemini_worker(semaphore, i, image_path, root_path, pbar, media_type) for i, image_path in enumerate(image_paths)]
         results = await asyncio.gather(*cropping_tasks)
     return results
-
-async def process_image(i, image_path, root_path, pbar, media_type):
-    figure_path = crop_figures_gemini(i, image_path, root_path, media_type)
-    pbar.update(1)
-    if isinstance(figure_path, list):
-        return figure_path
-    else:
-        return [figure_path]
 
 async def process_image_upstage(i, image_path, root_path, pbar):
     figure_paths, chart_paths, table_paths = crop_figures_upstage(i, image_path, root_path)
@@ -65,15 +64,17 @@ async def crop_figures(image_paths, root_path, use_upstage, workers):
             all_chart_paths.extend(chart_paths)
             all_table_paths.extend(table_paths)
 
-    else:
-        all_figure_paths = await process_images(image_paths, root_path, workers, "figures")
-        all_chart_paths = await process_images(image_paths, root_path, workers, "charts")
-        all_table_paths = await process_images(image_paths, root_path, workers, "tables")
+        all_figure_paths = all_figure_paths + all_chart_paths
 
+    else:
+        all_figure_paths = await gemini_process_images(image_paths, root_path, workers, "figures")
+        all_figure_paths = [item for sublist in all_figure_paths for item in sublist if item is not None]
+
+        all_table_paths = await gemini_process_images(image_paths, root_path, workers, "tables")
+        all_table_paths = [item for sublist in all_table_paths for item in sublist if item is not None]
 
     all_figure_paths = list(filter(None, all_figure_paths))
-    all_chart_paths = list(filter(None, all_chart_paths))
     all_table_paths = list(filter(None, all_table_paths))
 
-    return all_figure_paths, all_chart_paths, all_table_paths
+    return all_figure_paths, all_table_paths
 

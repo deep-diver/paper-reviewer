@@ -5,52 +5,14 @@ from string import Template
 
 import google.generativeai as genai
 from google.ai.generativelanguage_v1beta.types import content
-from pipeline.utils import prompts
 
-MODEL_NAME = "gemini-1.5-flash-002"
+from pipeline.utils import prompts
+from configs.gemini_configs import extract_section_details_config
 
 def ask_gemini_for_section_details(pdf_file_in_gemini, section_info):
-    generation_config = {
-        "temperature": 1,
-        "top_p": 0.95,
-        "top_k": 40,
-        "max_output_tokens": 8192,
-        "response_schema": content.Schema(
-            type = content.Type.OBJECT,
-            required = ["summary", "keypoints", "details", "first_pros", "first_cons", "second_pros", "second_cons"],
-            properties = {
-                "summary": content.Schema(
-                    type = content.Type.STRING,
-                ),
-                "keypoints": content.Schema(
-                    type = content.Type.ARRAY,
-                    items = content.Schema(
-                        type = content.Type.STRING,
-                    ),
-                ),
-                "details": content.Schema(
-                    type = content.Type.STRING,
-                ),
-                "first_pros": content.Schema(
-                    type = content.Type.STRING,
-                ),
-                "first_cons": content.Schema(
-                    type = content.Type.STRING,
-                ),
-                "second_pros": content.Schema(
-                    type = content.Type.STRING,
-                ),
-                "second_cons": content.Schema(
-                    type = content.Type.STRING,
-                ),
-            },
-        ),
-        "response_mime_type": "application/json",
-    }
-
     model = genai.GenerativeModel(
-        model_name=MODEL_NAME,
-        generation_config=generation_config,
+        model_name=extract_section_details_config["model_name"],
+        generation_config=extract_section_details_config["generation_config"],
     )
 
     chat_session = model.start_chat(
@@ -65,7 +27,7 @@ def ask_gemini_for_section_details(pdf_file_in_gemini, section_info):
     )
 
     prompt = prompts["extract_section_details"]["prompt"]
-    prompt = Template(prompt).substitute(section_info=section_info)
+    prompt = Template(prompt).substitute(section_title=section_info["heading_title"])
     response = chat_session.send_message(prompt)
     return json.loads(response.text)
 

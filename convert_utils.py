@@ -2,6 +2,16 @@ import shutil
 import json
 import os
 import arxiv
+import requests
+from paperswithcode import PapersWithCodeClient
+
+def get_paperswithcode_url(arxiv_id):
+    client = PapersWithCodeClient()
+    papers = client.paper_list(arxiv_id=arxiv_id).results
+    if len(papers) == 0:
+        return None
+    paper = papers[0]
+    return f"https://paperswithcode.com/paper/{paper.id}"
 
 def copy_directory(src, dst):
   try:
@@ -121,3 +131,17 @@ def linebreaks_for_essentials(essentials_json):
     essentials_json["tldr"] = essentials_json["tldr"].replace("\n", "\n\n")
     # essentials_json["importance"] = essentials_json["importance"].replace("\n", "<br>")
     return essentials_json
+
+def download_image(image_url, to_path):
+  try:
+    response = requests.get(image_url, stream=True)
+    response.raise_for_status()  # Raise an exception for non-200 status codes
+
+    with open(to_path, 'wb') as file:
+      for chunk in response.iter_content(chunk_size=8192):
+        file.write(chunk)
+
+    print(f"Image downloaded successfully as {to_path}")
+
+  except requests.exceptions.RequestException as e:
+    print(f"Error downloading image: {e}")

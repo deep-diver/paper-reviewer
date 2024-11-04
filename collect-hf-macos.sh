@@ -30,10 +30,11 @@ while [[ $(date -j -f "%Y-%m-%d" "$start_date" +%s) -le $(date -j -f "%Y-%m-%d" 
     if echo "${existing_articles[@]}" | grep -qw "$id"; then 
       echo "Skipping $id - already exists"; 
     else 
-      python collect.py --arxiv-id "$id" --use-upstage; 
+      python collect.py --arxiv-id "$id" --stop-at-no-html;
     fi
   '
 
+  # python collect.py --arxiv-id "$id" --use-upstage
   # jq -r '.[].paper.id' daily_papers.json | xargs -I {} -P "$num_threads" sh -c "python collect.py --arxiv-id {} --use-upstage"
 
   # Increment the date (macOS compatible)

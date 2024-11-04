@@ -1,25 +1,62 @@
-[extract_coordinates]
-prompt = """Return bounding boxes around every $type with caption.
-the bounding boxes should be represented as (x_min, y_min, x_max, y_max) of floating point numbers between 0 and 1.
+[extract_tables]
+prompt = """Extract tables from the image. Express the tables in Markdown.
+Becareful with the layout of the tables, sometimes they are very complex.
 
-VERY carefully check the image if there are any $type, and extract the coordinates.
-DO NOT extract any coordinates of other types other than $type.
+do NOT reformat the tables. Extract tables with exactly the same layout from the image as much as possible.
+make sure to draw border lines.
+"""
+
+[extract_coordinate]
+prompt = """Extract a coordinate of the main figure from the image.
+Here, 'figure' means drawings with caption starting with 'Fig.' or 'Figure.'
+
+When extracting the bounding box, make sure to meet the following criteria:
+- other than figure (i.e. table) shouldn't be included.
+- The coordinate should not include other than figure.
+- The coordinate should not stretch to left and right. 
+- THe corrdinate should capture exact area of the figure.
+- The coordinate should not include the caption of the figure.
+- The coordinate should be represented as (x_min, y_min, x_max, y_max) of floating point numbers between 0 and 1.
+- If the figure is not found, return (0, 0, 0, 0).
+
+Return coordinate only if all of the criteria are met.
+Otherwise, return (0, 0, 0, 0).
 """
 
 [describe_figure]
 prompt = """based on the paper, give me the following information about the attached $type
 - actual caption of the $type from the paper with the $type number.
-- key description of the $type in single sentence.
+- if the actual caption is short, provide longer description for better understanding.
+- if the actual caption is long enough, provide short description for better readability.
 - specify the section title of the paper that the $type belongs to.
 """
 
-[double_check_figure]
-prompt = """The provided $type of image was parsed from the paper by the other AI.
+[describe_figure_from_html]
+prompt = """Below is the caption of the $type from the paper.
+caption: $caption
 
-That AI could have made a mistake, so check carefully with the following criteria:
-- Does it actually come from the paper?
-- Is it correctly parsed?
-- Is it not a partial image? (i.e. not the whole image)
+based on the attached paper, give me the following information about the $type.
+- if the actual caption is short, provide longer description for better understanding.
+- if the actual caption is long enough, provide short description for better readability.
+- specify the section title of the paper that the $type belongs to.
+"""
+
+[reformat_table]
+prompt = """Reformat the below HTML table into Markdown table.
+Also, if images are contained in the table, convert the image path as https://arxiv.org/html/arxiv_id/filename.png
+The current arxiv_id is $arxiv_id.
+
+$html_table
+"""
+
+[double_check_figure]
+prompt = """The provided figure of image was parsed from the paper by AI.
+
+That AI could have made a mistake, so make sure to meet the following criteria:
+- It should contain visual information.
+- It should be representative figure of the paper.
+- If it contains text, it should be part of the visual information.
+- Only text is not a valid image.
 
 If one of the criterias is not met, say no.
 Only if all criterias are met, say yes.
@@ -29,13 +66,16 @@ Only if all criterias are met, say yes.
 prompt = """The below HTML table was parsed from the paper by the other AI.
 
 That AI could have made a mistake, so check the HTML table carefully with the the following criteria:
-- Does it actually come from the paper?
-- Is it correctly parsed?
-- Should it be really a table? (i.e. pseudo-code, etc.)
-- Does it contain any insightful information? (i.e. not just a list of authors, etc.)
+-it should come from the paper
+- it should be correctly parsed
+- It should be a real table 
+- it should contain insightful information
+- it shouldt be pseudo-code
+- it shouldn't be author information
 
-If one of the criterias is not met, say no.
-Only if all criterias are met, say yes.
+Return True only all of the criteria are met.
+
+Think carefully
 --------------------------------
 $table
 """
@@ -53,7 +93,7 @@ Remember to:
 - Avoid redundancy: Ensure that the information provided in each is unique and does not overlap excessively. (i.e. if you already mentioned the project name from the TL;DR, do not mention it again in the other sections)
 - Focus on the main idea: Prioritize the core contributions and findings of the paper, ensuring that readers can grasp the main idea effectively.
 - Maintain a professional and objective tone: Present the information in a neutral and unbiased manner.
-- Wrap text to be highlighted with **bold**
+- Use **bold** to highlight the important parts of the text in the sections "TL;DR" and "Importance to Researchers.
 """
 
 [extract_affiliation]
@@ -79,33 +119,20 @@ known categories: $known_categories
 """
 
 [extract_sections]
-prompt = """You are a highly skilled AI research assistant tasked with summarizing academic papers for researchers. Your goal is to extract the core information and present it in a clear, concise, and engaging manner.
-
-For the given research paper, please provide the following:
-- title of each section
-- start and end page index that each section belongs to.
-
-ignore the following sections
-- abstract, any subsections, conclusion, appendix, references, related work
+prompt = """Given a PDF research paper as input, generate up to 5 insightful headings that capture key themes and points of depth, moving beyond simple takeaways. The goal is to extract brief titles (up to 15 characters each) that reflect deeper insights such as the paper's background, specific experimental methods, future research directions, and limitations. These titles should not necessarily match the paper's section titles verbatim but should be creatively crafted to highlight essential insights effectively.
 """
 
 [extract_references]
-prompt = """among the citations, find the top 20 most important papers with the following info.
-- section number that reference belongs to.
-- references from each section with first author's name and title of the referenced paper.
-- reason why the reference is picked as the most important in 1 paragraph
-
-the target sections are:
-$target_sections
+prompt = """rom the citations in this paper, identify the top 5 most important reference papers. For each, provide the following information:
+- The name of the first author.
+- The title of the reference paper.
+- Publication date of the reference paper in YYYY-MM-DD format.
+- A one-sentence explanation detailing why this reference is considered among the most important.
 """
 
 [extract_section_details]
-prompt = """for the section $section_info, analyze and extract the following information. Think deep and careful, and show me some valuable insights.
-
-- summary in a single sentence.
-- keypoints that readers should pay attention to in about 500 characters.
-- details expanding the summary. This should be written in 2 paragraphs in 1500 characters total.
-
-It is important not to refer the contents from other sections too much. The purpose is to understand the target section solely and deeply as much as possible.
-Also, Wrap important text with **bold**
+prompt = """Given a PDF research paper as input, analyze and provide a summary about the heading titled as '$section_title'.
+- The summary should be written with a thoughtful and in-depth approach to uncover valuable insights.
+- The summary should be written in a single paragraph, and it should be 800 characters long.
+- Use **bold** formatting to emphasize key points.
 """

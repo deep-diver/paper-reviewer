@@ -7,34 +7,16 @@ import google.generativeai as genai
 from google.ai.generativelanguage_v1beta.types import content
 
 from pipeline.utils import prompts, upload_to_gemini, wait_for_files_active
-
-MODEL_NAME = "gemini-1.5-flash-8b"
+from configs.gemini_configs import double_check_config
 
 def read_md(path):
     with open(path, 'r') as f:
         return f.read()
 
 def ask_gemini_for_double_check(figure_path, pdf_file_in_gemini, media_type):
-    generation_config = {
-        "temperature": 1,
-        "top_p": 0.95,
-        "top_k": 40,
-        "max_output_tokens": 8192,
-        "response_schema": content.Schema(
-            type = content.Type.OBJECT,
-            required = ["response"],
-            properties = {
-                "response": content.Schema(
-                    type = content.Type.BOOLEAN,
-                ),
-            },
-        ),
-        "response_mime_type": "application/json",
-    }
-
     model = genai.GenerativeModel(
-        model_name=MODEL_NAME,
-        generation_config=generation_config,
+        model_name=double_check_config["model_name"],
+        generation_config=double_check_config["generation_config"],
     )
 
     if media_type == "table":
@@ -44,29 +26,40 @@ def ask_gemini_for_double_check(figure_path, pdf_file_in_gemini, media_type):
         prompt = Template(prompt).safe_substitute(table=media[0])
 
         parts = [pdf_file_in_gemini]
-    else:
-        media = [upload_to_gemini(figure_path, mime_type="image/png")]
-        wait_for_files_active(media)
-        parts = [pdf_file_in_gemini, media[0]]
 
-        prompt = prompts["double_check_figure"]["prompt"]
-        prompt = Template(prompt).safe_substitute(type=media_type)
-
-    chat_session = model.start_chat(
         history=[
             {
                 "role": "user",
                 "parts": parts
             },
+        ]        
+    else:
+        media = [upload_to_gemini(figure_path, mime_type="image/png")]
+        wait_for_files_active(media)
+        parts = [pdf_file_in_gemini, media[0]]
+
+        history=[
+            {
+                "role": "user",
+                "parts": [
+                    pdf_file_in_gemini,
+                    "This is the paper PDF. Use it as a reference.",
+                    media[0],
+                ]
+            },
         ]
-    )
+
+        prompt = prompts["double_check_figure"]["prompt"]
+        prompt = Template(prompt).safe_substitute(type=media_type)
+
+    chat_session = model.start_chat(history=history)
 
     response = chat_session.send_message(prompt)
     return response.text
 
 def double_check_figure(figure_path, pdf_file_in_gemini, media_type):
     include_figure = ask_gemini_for_double_check(figure_path, pdf_file_in_gemini, media_type)
-    include_figure = json.loads(include_figure)["response"]
+    include_figure = json.loads(include_figure)["return"]
     return include_figure
 
 async def process_figure_double_check(figure_path, pdf_file_in_gemini, pbar, media_type):

@@ -14,17 +14,20 @@ draft: false
 {% raw %}{{< keyword icon="fingerprint" >}}{% endraw %} {{ arxiv_id }} {% raw %}{{< /keyword >}}{% endraw %}
 {% raw %}{{< keyword icon="writer" >}}{% endraw %} {{ author }} {% raw %}{{< /keyword >}}{% endraw %}
 {% if hf_daily_papers_date_tag %} 
-{% raw %}{{< keyword icon="hf-logo" >}}{% endraw %} {{ hf_daily_papers_date_tag }} {% raw %}{{< /keyword >}}{% endraw %}
+{% raw %}{{< keyword >}}{% endraw %} 🤗 {{ hf_daily_papers_date_tag }} {% raw %}{{< /keyword >}}{% endraw %}
 {% endif %} 
 {% raw %}{{< /keywordList >}}{% endraw %}
 
 {% raw %}{{< button{% endraw %} href="{{ arxiv_url }}"{% raw %} target="_self" >}}{% endraw %}
 {% raw %}↗ arXiv{% endraw %}
 {% raw %}{{< /button >}}{% endraw %}
-&nbsp; 
 {% raw %}{{< button{% endraw %} href="{{ hf_url }}"{% raw %} target="_self" >}}{% endraw %}
 {% raw %}↗ Hugging Face{% endraw %}
 {% raw %}{{< /button >}}{% endraw %}
+{% if paperswithcode_url %}{% raw %}{{< button{% endraw %} href="{{ paperswithcode_url }}"{% raw %} target="_self" >}}{% endraw %}
+{% raw %}↗ Papers with Code{% endraw %}
+{% raw %}{{< /button >}}{% endraw %}
+{% endif %}
 
 ### TL;DR
 
@@ -68,18 +71,6 @@ draft: false
 
 {% endif %}
 
-{% if first_chart %}
-
-![]({{ first_chart.figure_path }})
-
-> 🔼 {{ first_chart.description }}
-> <details>
-> <summary>read the caption</summary>
-> {{ first_chart.caption }}
-> </details>
-
-{% endif %}
-
 {% if first_table %}
 
 {% raw %}{{< table-caption >}}{% endraw %}
@@ -93,7 +84,14 @@ draft: false
 
 {% endif %}
 
-{% if other_figures|length > 1 or other_charts|length > 1 or other_tables|length > 1 %}
+{% if other_figures|length > 1 or other_tables|length > 1 %}
+
+### In-depth insights
+
+{% for section in sections %}
+#### {{ section.heading_title }}
+{{ section.details.summary }}
+{% endfor %}
 
 ### More visual insights
 {% if other_figures|length > 1 %}
@@ -114,24 +112,7 @@ draft: false
 {% endfor %}
 {% raw %}</details>{% endraw %}
 {% endif %}
-{% if other_charts|length > 1 %}
 
-{% raw %}<details>{% endraw %}
-{% raw %}<summary>More on charts{% endraw %}
-{% raw %}</summary>{% endraw %}
-
-{% for chart in other_charts %}
-![]({{ chart.figure_path }})
-
-> 🔼 {{ chart.description }}
-> <details>
-> <summary>read the caption</summary>
-> {{ chart.caption }}
-> </details>
-
-{% endfor %}
-{% raw %}</details>{% endraw %}
-{% endif %}
 {% if other_tables|length > 1 %}
 
 {% raw %}<details>{% endraw %}
