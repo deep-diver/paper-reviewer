@@ -17,23 +17,25 @@ existing_articles=()
 if [ -n "$existing_articles_dir" ]; then
   existing_articles=$(ls -d $existing_articles_dir/*/ | xargs -I {} basename {})
 fi
+echo "$existing_articles" | tr ' ' '\n' > existing_articles.txt
+
 # Loop through the date range
 while [[ $(date -j -f "%Y-%m-%d" "$start_date" +%s) -le $(date -j -f "%Y-%m-%d" "$end_date" +%s) ]]; do
   echo "Processing papers for $start_date"
 
   # Fetch the list of papers for the current date
   curl "https://huggingface.co/api/daily_papers?date=$start_date" -o daily_papers.json
-  
+
   jq -r '.[].paper.id' daily_papers.json | xargs -I {} -P "$num_threads" sh -c '
-    id={}; 
+    id={};
     rm -rf "$id"; 
-    if echo "${existing_articles[@]}" | grep -qw "$id"; then 
-      echo "Skipping $id - already exists"; 
-    else 
+    if grep -Fxq "$id" existing_articles.txt; then
+      echo "Skipping $id - already exists";
+    else
       python collect.py --arxiv-id "$id" --stop-at-no-html;
     fi
   '
-
+  
   # python collect.py --arxiv-id "$id" --use-upstage
   # jq -r '.[].paper.id' daily_papers.json | xargs -I {} -P "$num_threads" sh -c "python collect.py --arxiv-id {} --use-upstage"
 
