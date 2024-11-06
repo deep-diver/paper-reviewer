@@ -131,7 +131,8 @@ prompt = """rom the citations in this paper, identify the top 5 most important r
 """
 
 [extract_section_details]
-prompt = """Given a PDF research paper as input, analyze and provide a summary about the heading titled as '$section_title'.
+prompt = """Given a PDF research paper as input, analyze and generate comprehensive thoughts about the heading titled as '$section_title'.
+- '$section_title' is not necessarily the actual headings from the paper, hence writing your thoughts on it is enough.
 - The summary should be written with a thoughtful and in-depth approach to uncover valuable insights.
 - The summary should be written in a single paragraph, and it should be 800 characters long.
 - Use **bold** formatting to emphasize key points.
