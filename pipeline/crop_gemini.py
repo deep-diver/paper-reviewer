@@ -10,15 +10,7 @@ from google.ai.generativelanguage_v1beta.types import content
 from pipeline.utils import upload_to_gemini, wait_for_files_active, prompts
 from configs.gemini_configs import crop_config
 
-correct_example_paths = glob.glob("assets/rect_example*.png")
-wrong_example_paths = glob.glob("assets/no_rect_example*.png")
-
-correct_examples = [upload_to_gemini(example, mime_type="image/png") for example in correct_example_paths]
-wrong_examples = [upload_to_gemini(example, mime_type="image/png") for example in wrong_example_paths]
-wait_for_files_active(correct_examples)
-wait_for_files_active(wrong_examples)
-
-def ask_gemini_for_coordinates(image_path):
+def ask_gemini_for_coordinates(image_path, correct_examples, wrong_examples):
     model = genai.GenerativeModel(
         model_name=crop_config["model_name"],
         generation_config=crop_config["generation_config"],
@@ -52,12 +44,12 @@ def ask_gemini_for_coordinates(image_path):
     response = chat_session.send_message(prompt)
     return json.loads(response.text)
 
-def crop_figures(idx, image_path, root_path):
+def crop_figures(idx, image_path, root_path, correct_examples, wrong_examples):
     image = Image.open(image_path)  # Replace "image.jpg" with your image file
     width, height = image.size
 
     # call Gemini 1.5 Pro to obtain left, top, right, bottom coordinates
-    coordinate  = ask_gemini_for_coordinates(image_path)
+    coordinate  = ask_gemini_for_coordinates(image_path, correct_examples, wrong_examples)
     norm_left, norm_top, norm_right, norm_bottom = coordinate["x_min"], coordinate["y_min"], coordinate["x_max"], coordinate["y_max"]
     
     if norm_left == 0 and norm_top == 0 and norm_right == 0 and norm_bottom == 0:
@@ -125,7 +117,6 @@ def ask_gemini_for_tables(image_path):
     return json.loads(response.text)
 
 def extract_tables(idx, image_path, root_path):
-    image = Image.open(image_path)  # Replace "image.jpg" with your image file
     tables = ask_gemini_for_tables(image_path)
 
     table_paths = []
