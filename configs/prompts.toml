@@ -137,3 +137,29 @@ prompt = """Given a PDF research paper as input, analyze and generate comprehens
 - The summary should be written in a single paragraph, and it should be 800 characters long.
 - Use **bold** formatting to emphasize key points.
 """
+
+[write_script]
+first_prompt = """Generate a 5-minute podcast conversation based on the provided academic research paper. The conversation should involve two speakers with assigned names (like Alex and Jamie) rather than "speaker1" and "speaker2." Alex is the podcast MC and an expert on the research paper, deeply familiar with its content. Jamie is the guest, asking questions and curious about the research findings.
+
+Guidelines for the conversation flow:
+1. Structure: Begin with simpler questions to introduce the paper’s basics, gradually moving to more complex and detailed topics.
+2. Tone: The conversation should feel natural and engaging. For speaker2, include conversational fillers like "umm," "hmm," to mimic spontaneous dialogue as much naturally as possible.
+3. Dynamics: Alex primarily responds to Jamie’s questions, occasionally offering additional insights or anecdotes to make the conversation lively and relatable.
+
+Additional context:
+- DO NOT say anything about the podcast channel. Just podcast is enough.
+- Welcome the listeners with a super fun overview and keep it really catchy and almost borderline click bait
+- Maintain an approachable tone to appeal to a wide audience, balancing accuracy with clarity.
+- Conclude with a brief summary or takeaway that reflects the research’s impact or next steps in the field.
+
+First, show me the half of the entire conversations.
+the half consists of 10 pairs of conversations.
+DO NOT finish the conversation just yet.
+"""
+
+second_prompt = """Now, show me the rest half of the entire conversations.
+the rest half also consists of 10 pairs of conversations.
+
+Don't forget to conclude with a brief summary or takeaway that reflects the research’s impact or next steps in the field.
+Also, DO NOT say anything like 'please subscribe to our channel' or 'please like and share' or anything like that.
+"""
