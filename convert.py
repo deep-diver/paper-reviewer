@@ -43,11 +43,19 @@ def main(args):
         return
     
     # 2. get paper imgs
+    podcast_path = f'articles/{args.arxiv_id}/podcast.wav'
     if args.upload_images_r2:
         paper_imgs = upload_paper_imgs(args.arxiv_id)
         shutil.rmtree(f'articles/{args.arxiv_id}/paper_images', ignore_errors=True)
+
+        if os.path.exists(podcast_path):
+            podcast = upload_podcast(args.arxiv_id, podcast_path)
+            os.remove(podcast_path)
     else:
         paper_imgs = get_paper_imgs(args.arxiv_id)
+
+        if not os.path.exists(podcast_path):
+            podcast = None
 
     # 3. sort the json by paths
     if not use_html:
@@ -55,7 +63,7 @@ def main(args):
         tables_json = sort_json_by_paths(tables_json)
 
     # 4. rebase the paths
-    if not use_html:   
+    if not use_html:
         figures_json = rebase_paths_from_json(figures_json)
         tables_json = rebase_paths_from_json(tables_json)
         tables_json = read_add_table_content(args.arxiv_id, tables_json)
@@ -70,7 +78,7 @@ def main(args):
 
     # 7. copy the first figure to cover.png
     if first_figure is not None:
-        if not use_html:   
+        if not use_html:
             shutil.copy(
                 os.path.join("articles", args.arxiv_id, first_figure["figure_path"]),
                 os.path.join("articles", args.arxiv_id, "cover.png")
@@ -114,6 +122,7 @@ def main(args):
         'arxiv_url': f'https://arxiv.org/abs/{args.arxiv_id}',
         'hf_url': f'https://huggingface.co/papers/{args.arxiv_id}',
         'paperswithcode_url': paperswithcode_url,
+        'podcast': podcast,
         'tldr': essential_json["tldr"],
         'reason_why_matter': essential_json["importance"],
         'takeaways': essential_json["takeaways"],

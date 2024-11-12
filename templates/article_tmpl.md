@@ -29,6 +29,13 @@ draft: false
 {% raw %}{{< /button >}}{% endraw %}
 {% endif %}
 
+{% if podcast %}
+<audio controls>
+    <source src="{{ podcast }}" type="audio/wav">
+    Your browser does not support the audio element.
+</audio>
+{% endif %}
+
 ### TL;DR
 
 {% raw %}
