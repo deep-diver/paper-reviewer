@@ -4,6 +4,8 @@ https://github.com/user-attachments/assets/4ee19af5-107e-4ae7-95fe-67f6227eb5b0
 
 Generate a comprehensive review from an arXiv paper, then turn it into a blog post. That is the goal of this project, and it comes with a set of tools to accomplish that. If you are curious how to build your own paper reviewing blog, check out [AI Paper Reviewer](https://deep-diver.github.io/ai-paper-reviewer) which is powered by this project to auto-generate blog posts on the [Hugging Face Daily Papers](https://huggingface.co/papers). The video above is the demo of it.
 
+As of Dec. 2024, this project also powers [AI Paper Reviewer for NeurIPS 2024](https://deep-diver.github.io/neurips2024/) web page.
+
 ## How it works
 
 At high level, there are two Python scripts, [`collect.py`](./collect.py) and [`convert.py`](./convert.py). 
