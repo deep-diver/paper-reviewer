@@ -96,6 +96,7 @@ def main(args):
 
     # 9. get the paper info
     paper_info = get_paper_info(args.arxiv_id)
+    paper_info['title'] = paper_info['title'].replace('"', "'") # there is some paper titled with quotation mark
     paperswithcode_url = get_paperswithcode_url(args.arxiv_id)
     paper_summary = essential_json["summary"].replace('"', "'")
     if len(paper_summary) > 200:
