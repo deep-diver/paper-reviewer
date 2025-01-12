@@ -37,7 +37,7 @@ $ brew install poppler
 
 ### When using MinerU
 
-- When using MinerU, python version should be set to `3.10`. If your current environment is not `3.10`, make one with `$ conda create -n paper-reviewer-mineru python=3.10` or something similar.
+- When using [MinerU](https://github.com/opendatalab/MinerU), python version should be set to `3.10`. If your current environment is not `3.10`, make one with `$ conda create -n paper-reviewer-mineru python=3.10` or something similar.
 - When using MinerU with GPU enabled, you need to modify the `~/magic-pdf.json` config file. Update `"device-mode": "cpu"` to `"device-mode": "cuda"` or `"device-mode": "cuda:0"` if you want to use specific GPU # in your system. If you want to keep multiple JSON files, switch between them by modifying the `MINERU_TOOLS_CONFIG_JSON` environment variable.
 
 ```bash
