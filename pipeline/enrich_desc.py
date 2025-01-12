@@ -1,4 +1,5 @@
 import json
+import imghdr
 import asyncio
 from tqdm import tqdm
 from string import Template
@@ -42,8 +43,12 @@ def ask_gemini_description_from_image(pdf_file_in_gemini, media_path, media_type
         media_in_gemini = upload_to_gemini(media_path, mime_type="image/png")
         wait_for_files_active([media_in_gemini])
     elif media_type == "table":
-        with open(media_path, "r") as f:
-            media_in_gemini = f.read()
+        if imghdr.what(media_path):
+            media_in_gemini = upload_to_gemini(media_path, mime_type="image/png")
+            wait_for_files_active([media_in_gemini])
+        else:
+            with open(media_path, "r") as f:
+                media_in_gemini = f.read()
 
     chat_session = model.start_chat(
         history=[

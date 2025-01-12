@@ -10,3 +10,4 @@ google-generativeai
 beautifulsoup4
 pdf2image
 paperswithcode-client
+openreview-py

@@ -4,7 +4,12 @@ import json
 import asyncio
 import shutil
 
-from pipeline.download import download_pdf
+from pipeline.download import (
+    remove_version_from_string,
+    download_pdf_from_arxiv, 
+    download_pdf_from_openreview,
+    get_paper_from_arxiv_by_openreview
+)
 from pipeline.pdf_to_images import pdf_to_images
 from pipeline.parse_media_html import get_media_from_html
 from pipeline.crop import crop_figures
@@ -23,10 +28,18 @@ from pipeline.utils import UploadedFiles
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--arxiv-id', type=str, help='arXiv ID')
+    parser.add_argument('--arxiv-id', type=str, default=None, help='arXiv ID')
+    parser.add_argument('--openreview-id', type=str, default=None,help='OpenReview ID')
+    parser.add_argument('--skip-comparision-openreview-arxiv', action='store_true', help='Skip downloading the PDF file')
+
+    parser.add_argument('--skip-page-threshold', type=int, default=50, help='Skip the paper if the number of pages is greater than the threshold')
+
     parser.add_argument('--workers', type=int, default=10, help='Number of workers')
     parser.add_argument('--use-upstage', action='store_true', help='Use Upstage to extract figures from images')
+    parser.add_argument('--use-mineru', action='store_true', help='Use MinerU to extract figures from images')
+
     parser.add_argument('--stop-at-no-html', action='store_true', help='Stop if no HTML is found')
+
     parser.add_argument('--known-affiliations-path', type=str, default='configs/known_affiliations.txt', help='Path to known affiliations')
     parser.add_argument('--known-categories-path', type=str, default='configs/known_categories.json', help='Path to known categories')
     parser.add_argument('--voice-synthesis', type=str, default=None, choices=['vertexai', 'local'], help='Voice synthesis service to use')
@@ -35,11 +48,35 @@ def parse_args():
 async def main(args):
     print(args)
     use_html = True
-    root_path = args.arxiv_id
+    
+    if args.arxiv_id is not None:
+        # 1. download pdf
+        root_path = remove_version_from_string(args.arxiv_id)
+        print(f"Downloading PDF from arXiv: {args.arxiv_id}")
+        pdf_file_path = download_pdf_from_arxiv(root_path, args.arxiv_id)
 
-    # 1. download pdf
-    print(f"Downloading PDF from arXiv: {args.arxiv_id}")
-    pdf_file_path = download_pdf(root_path, args.arxiv_id)
+    if args.openreview_id is not None:
+        found_on_arxiv = False
+
+        # 1. download pdf
+        if args.skip_comparision_openreview_arxiv:
+            print(f"Skipping the comparision between OpenReview and arXiv")
+        else:
+            print(f"Checking if the paper is on arXiv")
+            found_on_arxiv, arxiv_id = get_paper_from_arxiv_by_openreview(args.openreview_id)
+
+        if found_on_arxiv:
+            print(f"The paper is on arXiv. Skip downloading the PDF from OpenReview")
+            args.arxiv_id = arxiv_id
+            root_path = args.arxiv_id
+            print(f"Downloading PDF from arXiv: {args.arxiv_id}")
+            pdf_file_path = download_pdf_from_arxiv(root_path, args.arxiv_id)
+            args.openreview_id = None
+        else:
+            print(f"The paper is not on arXiv. Downloading the PDF from OpenReview")
+            root_path = args.openreview_id          
+            print(f"Downloading PDF from OpenReview: {args.openreview_id}")
+            pdf_file_path = download_pdf_from_openreview(root_path, args.openreview_id)
 
     with UploadedFiles(pdf_file_path) as uploaded_files:
         pdf_file_in_gemini = uploaded_files[0]
@@ -47,51 +84,57 @@ async def main(args):
         # 2. convert pdf to images
         print(f"Converting PDF to images")
         image_paths = pdf_to_images(pdf_file_path, f"{root_path}/paper_images")
-        if len(image_paths) > 50:
+        if len(image_paths) >= args.skip_page_threshold:
             print(f"Too many images: {len(image_paths)}. Skip this paper.")
             shutil.rmtree(root_path)
             return
 
         # 3. crop figures from images
         print(f"Using HTML to extract figures and tables")
-        figures, tables = get_media_from_html(args.arxiv_id)
-        if figures is None or tables is None:
-            if args.stop_at_no_html:
-                print(f"No HTML is found. Skip this paper.")
-                shutil.rmtree(root_path)
-                return
-            else:
-                use_html = False
+        if args.arxiv_id is not None:
+            figures, tables = get_media_from_html(args.arxiv_id)
+            print(figures)
+            print(tables)
+            print("---")
+            if figures is None or tables is None:
+                if args.stop_at_no_html:
+                    print(f"No HTML is found. Skip this paper.")
+                    shutil.rmtree(root_path)
+                    return
+                else:
+                    use_html = False
+        else:
+            use_html = False
 
         if not use_html:
             print(f"Cropping figures from images")
-            figure_paths, table_paths = await crop_figures(image_paths, root_path, args.use_upstage, args.workers)
+            figure_paths, table_paths = await crop_figures(image_paths, root_path, args.use_upstage, args.use_mineru, args.workers, pdf_file_path)
             print(f"{len(figure_paths)} number of figures are extracted and saved {figure_paths}.")
             print(f"{len(table_paths)} number of tables are extracted and saved {table_paths}.")
 
         # 4. Double check if figure image file contians figure
-        if not use_html:
-            print(f"Double checking if figure image file actually contians figure")
-            # Filter out invalid figures and clean up files
-            valid_figure_paths = await doublecheck_figures(figure_paths, pdf_file_in_gemini, args.workers, "figure")
-            valid_figure_paths = [figure_paths[0]] if len(valid_figure_paths) == 0 else valid_figure_paths
-            invalid_paths = set(figure_paths) - set(valid_figure_paths)
-            for path in invalid_paths:
-                os.remove(path)
-            figure_paths = valid_figure_paths
-            print(f"{len(figure_paths)} number of figures are remained. {figure_paths}.")
+        # if not use_html:
+        #     print(f"Double checking if figure image file actually contians figure")
+        #     # Filter out invalid figures and clean up files
+        #     valid_figure_paths = await doublecheck_figures(figure_paths, pdf_file_in_gemini, args.workers, "figure")
+        #     valid_figure_paths = [figure_paths[0]] if len(valid_figure_paths) == 0 else valid_figure_paths
+        #     invalid_paths = set(figure_paths) - set(valid_figure_paths)
+        #     for path in invalid_paths:
+        #         os.remove(path)
+        #     figure_paths = valid_figure_paths
+        #     print(f"{len(figure_paths)} number of figures are remained. {figure_paths}.")
 
-            print(f"Double checking if table file actually contians table")
-            valid_table_paths = await doublecheck_figures(table_paths, pdf_file_in_gemini, args.workers, "table")
-            valid_table_paths = [table_paths[0]] if len(valid_table_paths) == 0 else valid_table_paths
-            invalid_paths = set(table_paths) - set(valid_table_paths)
-            for path in invalid_paths:
-                os.remove(path)
-            table_paths = valid_table_paths
-            print(f"{len(table_paths)} number of tables are remained. {table_paths}.")
-        else:
-            print(f"Reformatting tables")
-            tables = await reformat_tables_from_html(args.arxiv_id, tables, args.workers)
+        #     print(f"Double checking if table file actually contians table")
+        #     valid_table_paths = await doublecheck_figures(table_paths, pdf_file_in_gemini, args.workers, "table")
+        #     valid_table_paths = [table_paths[0]] if len(valid_table_paths) == 0 else valid_table_paths
+        #     invalid_paths = set(table_paths) - set(valid_table_paths)
+        #     for path in invalid_paths:
+        #         os.remove(path)
+        #     table_paths = valid_table_paths
+        #     print(f"{len(table_paths)} number of tables are remained. {table_paths}.")
+        # else:
+        #     print(f"Reformatting tables")
+        #     tables = await reformat_tables_from_html(args.arxiv_id, tables, args.workers)
 
         # 5. associate each figure and table with description
         print(f"Associating each figure with relevant information")
@@ -99,6 +142,7 @@ async def main(args):
             association_figure_results = await enrich_description_from_images(figure_paths, pdf_file_in_gemini, args.workers, "figure")
             association_table_results = await enrich_description_from_images(table_paths, pdf_file_in_gemini, args.workers, "table")
         else:
+            print(figures)
             association_figure_results = await enrich_description_from_html(figures, pdf_file_in_gemini, args.workers, "figure")
             association_table_results = await enrich_description_from_html(tables, pdf_file_in_gemini, args.workers, "table")
 
@@ -134,7 +178,7 @@ async def main(args):
         if args.voice_synthesis == "vertexai":
             print("Generating podcast")
             print("Writing script")
-            raw_script_path = f"{root_path}/raw_script.wav"
+            raw_script_path = f"{root_path}/raw_script.txt"
             script = write_script(pdf_file_in_gemini)
             with open(raw_script_path, "w", encoding="utf-8") as f:
                 json.dump(script, f)
@@ -182,5 +226,12 @@ async def main(args):
         print(f"References are saved to {results_path}")
 
 if __name__ == "__main__":
-    args = parse_args() 
+    args = parse_args()
+
+    if args.arxiv_id is None and args.openreview_id is None:
+        raise ValueError("Either arxiv-id or openreview-id must be provided")
+    
+    if args.use_upstage and args.use_mineru:
+        raise ValueError("use-upstage and use-mineru cannot be provided at the same time")
+
     asyncio.run(main(args))

@@ -1,7 +1,10 @@
+import re
+import datetime
 import shutil
 import json
 import os
 import arxiv
+import openreview
 import requests
 from paperswithcode import PapersWithCodeClient
 
@@ -20,24 +23,44 @@ def copy_directory(src, dst):
   except OSError as e:
     print(f"Error copying directory: {e}")
 
-def get_paper_info(arxiv_id):
-  try:
-    client = arxiv.Client()  # Create a Client instance
-    search = arxiv.Search(id_list=[arxiv_id])
-    paper = next(client.results(search))
-    return {
-        "title": paper.title,
-        "publish_date": paper.published.strftime('%Y-%m-%d'),
-        "author": f"{str(paper.authors[0])} et el."
-    }
-  except Exception as e:
-    print(f"Error fetching paper information: {e}")
-    return None
+def timestamp_to_datetime(timestamp):
+    timestamp_seconds = timestamp / 1000  # Convert milliseconds to seconds
+    dt_object = datetime.datetime.fromtimestamp(timestamp_seconds)
+    return dt_object.strftime("%Y-%m-%d")
+
+def get_paper_info(arxiv_id, openreview_id):
+    if arxiv_id is not None:
+        try:
+            client = arxiv.Client()  # Create a Client instance
+            search = arxiv.Search(id_list=[arxiv_id])
+            paper = next(client.results(search))
+            return {
+                "title": paper.title,
+                "publish_date": paper.published.strftime('%Y-%m-%d'),
+                "author": f"{str(paper.authors[0])} et el."
+            }
+        except Exception as e:
+            print(f"Error fetching paper information: {e}")
+            return None
+
+    if openreview_id is not None:
+        try:    
+            client = openreview.api.OpenReviewClient(baseurl="https://api2.openreview.net")
+            paper_info = client.get_note(id=openreview_id)
+            authors = paper_info.content["authors"]["value"]
+            return {
+                "title": paper_info.content["title"]["value"],
+                "publish_date": timestamp_to_datetime(paper_info.pdate),
+                "author": f"{authors[0]} et el."
+            }
+        except Exception as e:
+            print(f"Error fetching paper information: {e}")
+            return None
 
 def sort_json_by_paths(json_data):
     def extract_fn_sn(figure_path):
         """Extracts fn and sn from a figure_path string."""
-        parts = figure_path.split('/')[0].split('.')
+        parts = figure_path.split('/')[-1].split('.')[0].split('_')[1:]
         return int(parts[0]), int(parts[1])
     
     json_data.sort(key=lambda item: extract_fn_sn(item['figure_path']))
@@ -153,3 +176,16 @@ def download_image(image_url, to_path):
 
   except requests.exceptions.RequestException as e:
     print(f"Error downloading image: {e}")
+
+def remove_version_from_string(string):
+    return re.sub(r"v\d+", "", string)
+
+def get_neurips_poster_id(title):
+    with open('poster_ids.json', 'r') as f:
+        poster_ids = json.load(f)
+
+    for poster_id in poster_ids:
+        if poster_id["title"] == title:
+            return poster_id["poster_id"]
+
+    return None

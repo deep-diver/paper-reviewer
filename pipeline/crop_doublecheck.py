@@ -1,4 +1,5 @@
 import json
+import imghdr
 import asyncio
 from tqdm import tqdm
 from string import Template
@@ -20,19 +21,38 @@ def ask_gemini_for_double_check(figure_path, pdf_file_in_gemini, media_type):
     )
 
     if media_type == "table":
-        media = [read_md(figure_path)]
+        if imghdr.what(figure_path):
+            media = [upload_to_gemini(figure_path, mime_type="image/png")]
+            wait_for_files_active(media)
+            parts = [pdf_file_in_gemini, media[0]]
 
-        prompt = prompts["double_check_table"]["prompt"]
-        prompt = Template(prompt).safe_substitute(table=media[0])
+            history=[
+                {
+                    "role": "user",
+                    "parts": [
+                        pdf_file_in_gemini,
+                        "This is the paper PDF. Use it as a reference.",
+                        media[0],
+                    ]
+                },
+            ]
 
-        parts = [pdf_file_in_gemini]
+            prompt = prompts["double_check_table"]["prompt_for_image"]
+            prompt = Template(prompt).safe_substitute(type=media_type)
+        else:
+            media = [read_md(figure_path)]
 
-        history=[
-            {
-                "role": "user",
-                "parts": parts
-            },
-        ]        
+            prompt = prompts["double_check_table"]["prompt"]
+            prompt = Template(prompt).safe_substitute(table=media[0])
+
+            parts = [pdf_file_in_gemini]
+
+            history=[
+                {
+                    "role": "user",
+                    "parts": parts
+                },
+            ]        
     else:
         media = [upload_to_gemini(figure_path, mime_type="image/png")]
         wait_for_files_active(media)

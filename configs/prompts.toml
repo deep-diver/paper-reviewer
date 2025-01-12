@@ -80,6 +80,20 @@ Think carefully
 $table
 """
 
+prompt_for_image = """The provided table of image was parsed from the paper by AI.
+
+That AI could have made a mistake, so make sure to meet the following criteria:
+-it should come from the paper
+- it should be correctly parsed
+- It should be a real table 
+- it should contain insightful information
+- it shouldt be pseudo-code
+- it shouldn't be author information
+
+If one of the criterias is not met, say no.
+Only if all criterias are met, say yes.
+"""
+
 [extract_essentials]
 prompt = """You are a highly skilled AI research assistant tasked with summarizing academic papers for researchers. Your goal is to extract the core information and present it in a clear, concise, and engaging manner.
 
