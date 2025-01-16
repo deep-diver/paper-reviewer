@@ -15,7 +15,6 @@ s3 = boto3.client(
     region_name="auto", # Must be one of: wnam, enam, weur, eeur, apac, auto
     config=boto3.session.Config(
         signature_version='s3v4',
-        use_accelerate_endpoint=False 
     )
 )
 
