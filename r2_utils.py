@@ -13,9 +13,6 @@ s3 = boto3.client(
     aws_access_key_id = R2_ACCESS_KEY_ID,
     aws_secret_access_key = R2_SECRET_ACCESS_KEY,
     region_name="auto", # Must be one of: wnam, enam, weur, eeur, apac, auto
-    config=boto3.session.Config(
-        signature_version='s3v4',
-    )
 )
 
 def upload_to_r2(bucket_name, arxiv_id, filename):
