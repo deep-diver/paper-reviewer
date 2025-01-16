@@ -137,12 +137,12 @@ def main(args):
     with open(f"articles/{args.paper_id}/title.txt", "w") as f:
         f.write(paper_info['title'])
 
-    neurips_poster_id = get_neurips_poster_id(paper_info['title'])
+    # neurips_poster_id = get_neurips_poster_id(paper_info['title'])
 
     data = {
         'hf_daily_papers_date_tag': args.hf_daily_papers_date_tag,
         'paper_title': f"\"{paper_info['title']}\"",
-        'neurips_link': f"https://neurips.cc/virtual/2024/poster/{neurips_poster_id}",
+        # 'neurips_link': f"https://neurips.cc/virtual/2024/poster/{neurips_poster_id}",
         'arxiv_id': args.paper_id,
         "author": paper_info["author"],
         "affiliation": essential_json["affiliation"],
