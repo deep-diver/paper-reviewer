@@ -4,7 +4,7 @@ pydub
 jinja2
 pillow
 requests
-boto3
+boto3==1.35.99
 arxiv
 google-generativeai
 beautifulsoup4
