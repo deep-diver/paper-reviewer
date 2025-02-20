@@ -1,7 +1,7 @@
 from google.ai.generativelanguage_v1beta.types import content
 
 reformat_table_config = {
-    "model_name": "gemini-1.5-flash-002",
+    "model_name": "gemini-2.0-flash",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -21,7 +21,7 @@ reformat_table_config = {
 }
 
 double_check_config = {
-    "model_name": "gemini-1.5-pro-002",
+    "model_name": "gemini-2.0-pro-exp-02-05",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -41,7 +41,7 @@ double_check_config = {
 }
 
 crop_config = {
-    "model_name": "gemini-1.5-pro-002",
+    "model_name": "gemini-2.0-pro-exp-02-05",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -70,7 +70,7 @@ crop_config = {
 }
 
 extract_affiliation_config = {
-    "model_name": "gemini-1.5-flash-8b",
+    "model_name": "gemini-2.0-flash-lite-preview-02-05",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -90,7 +90,7 @@ extract_affiliation_config = {
 }
 
 extract_category_config = {
-    "model_name": "gemini-1.5-flash-8b",
+    "model_name": "gemini-2.0-flash-lite-preview-02-05",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -113,7 +113,7 @@ extract_category_config = {
 }
 
 extract_essentials_config = {
-    "model_name": "gemini-1.5-flash-002",
+    "model_name": "gemini-2.0-flash",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -145,7 +145,7 @@ extract_essentials_config = {
 }
 
 extract_references_config = {
-    "model_name": "gemini-1.5-flash-002",
+    "model_name": "gemini-2.0-flash",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -183,7 +183,7 @@ extract_references_config = {
 }
 
 extract_sections_config = {
-    "model_name": "gemini-1.5-flash-002",
+    "model_name": "gemini-2.0-flash",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -212,7 +212,7 @@ extract_sections_config = {
 }
 
 extract_section_details_config = {
-    "model_name": "gemini-1.5-flash-002",
+    "model_name": "gemini-2.0-flash",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
@@ -232,7 +232,7 @@ extract_section_details_config = {
 }
 
 write_script_config = {
-    "model_name": "gemini-1.5-flash-002",
+    "model_name": "gemini-2.0-flash",
     "generation_config": {
         "temperature": 1,
         "top_p": 0.95,
