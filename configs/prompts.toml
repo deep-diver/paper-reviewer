@@ -137,7 +137,7 @@ prompt = """Given a PDF research paper as input, generate up to 5 insightful hea
 """
 
 [extract_references]
-prompt = """rom the citations in this paper, identify the top 5 most important reference papers. For each, provide the following information:
+prompt = """From the citations in this paper, identify the top 5 most important reference papers. For each, provide the following information:
 - The name of the first author.
 - The title of the reference paper.
 - Publication date of the reference paper in YYYY-MM-DD format.
